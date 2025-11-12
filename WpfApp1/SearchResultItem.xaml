@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="WpfApp1.SearchResultItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="80" d:DesignWidth="460">
+    <Border Background="White" 
+            BorderBrush="#E0E0E0" 
+            BorderThickness="1" 
+            CornerRadius="8"
+            Margin="0,5"
+            Padding="15">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                        <Setter Property="BorderBrush" Value="#1877F2"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Avatar -->
+            <Ellipse x:Name="AvatarEllipse"
+                     Grid.Column="0" 
+                     Width="50" 
+                     Height="50"
+                     Fill="#DDDDDD" 
+                     Margin="5,-6,5,-6"/>
+
+            <!-- Thông tin người dùng -->
+            <StackPanel Grid.Column="1" 
+                       VerticalAlignment="Center" 
+                       Margin="15,0,0,0">
+                <TextBlock x:Name="UserNameText"
+                          Text="Tên người dùng"
+                          FontWeight="SemiBold"
+                          FontSize="16"
+                          Foreground="#333333"/>
+                <TextBlock x:Name="UserBirthDateText"
+                          Text="Thông tin bổ sung"
+                          FontSize="13"
+                          Foreground="#666666"
+                          Margin="0,3,0,0"/>
+            </StackPanel>
+
+            <!-- Nút hành động -->
+            <Button Grid.Column="2"
+                   x:Name="ActionButton"
+                   Content="Xem"
+                   Width="80"
+                   Height="32"
+                   Background="#1877F2"
+                   Foreground="White"
+                   BorderThickness="0"
+                   FontWeight="SemiBold"
+                   Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                           CornerRadius="6"
+                                           Padding="10,5">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#166FE5"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

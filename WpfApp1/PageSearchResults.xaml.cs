@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace WpfApp1
 {
@@ -31,15 +21,33 @@ namespace WpfApp1
         private void RunSearch()
         {
             string query = SearchBox.Text.Trim();
-            var results = FamilyTree.SearchByName(query);
 
             SearchResultsPanel.Children.Clear();
 
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                SearchResultsPanel.Children.Add(new TextBlock
+                {
+                    Text = "Nhập tên để tìm kiếm...",
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 50, 0, 0)
+                });
+                return;
+            }
+            var results = FamilyTree.SearchByName(query);
+
             if (results.Count == 0)
             {
-                SearchResultsPanel.Children.Add(
-                    new TextBlock { Text = "Không tìm thấy.", Margin = new Thickness(5) }
-                );
+                SearchResultsPanel.Children.Add(new TextBlock
+                {
+                    Text = "Không tìm thấy kết quả nào.",
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 50, 0, 0)
+                });
                 return;
             }
 
@@ -48,80 +56,37 @@ namespace WpfApp1
                 var item = CreateSearchResultItem(r.id, r.person);
                 SearchResultsPanel.Children.Add(item);
             }
-
         }
 
-        private UIElement CreateSearchResultItem(int id, Person p) {
-            var mainPanel = new StackPanel
+        private UIElement CreateSearchResultItem(int id, Person p)
+        {
+            var item = new SearchResultItem(id, p);
+            item.ItemClicked += (s, personId) =>
             {
-                Orientation = Orientation.Horizontal,
-                Margin = new Thickness(5)
+                // NavigationService.Navigate(new PersonPage(personId));
+                MessageBox.Show($"Clicked on person ID: {personId}\nName: {p.Name}");
             };
-            var img = new Image
-            {
-                Width = 50,
-                Height = 50,
-                Margin = new Thickness(0, 0, 10, 0),
-                VerticalAlignment = VerticalAlignment.Top
-            };
-
-            if (p.Pfp != null && p.Pfp.Length > 0)
-            {
-                BitmapImage bitmap = new BitmapImage();
-                using (var ms = new MemoryStream(p.Pfp))
-                {
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.StreamSource = ms;
-                    bitmap.EndInit();
-                }
-                bitmap.Freeze();
-                img.Source = bitmap;
-            }
-            var textPanel = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            textPanel.Children.Add(new TextBlock
-            {
-                Text = p.Name,
-                FontWeight = FontWeights.Bold,
-                FontSize = 14
-            });
-            textPanel.Children.Add(new TextBlock
-            {
-                Text = $"Ngày sinh: {p.BirthDate:dd/MM/yyyy}",
-                FontSize = 12
-            });
-            mainPanel.Children.Add(img);
-            mainPanel.Children.Add(textPanel);
-            var btn = new Button
-            {
-                Content = mainPanel,
-                Margin = new Thickness(0, 5, 0, 0),
-                Height = 70,
-                Tag = id,
-                HorizontalContentAlignment = HorizontalAlignment.Left
-            };
-
-            btn.Click += (s, e) =>
-            {
-                // NavigationService.Navigate(new PersonPage(id));
-            };
-
-            return btn;
+            return item;
         }
-
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.GoBack();
+            if (NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
         {
             RunSearch();
+        }
+        private void SearchBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                RunSearch();
+            }
         }
     }
 }
