@@ -29,6 +29,19 @@ namespace WpfApp1
 
         private void Search_Click(object sender, RoutedEventArgs e)
         {
+            PerformSearch();
+        }
+
+        private void SearchBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                PerformSearch();
+            }
+        }
+
+        private void PerformSearch()
+        {
             string query = SearchBox.Text;
             NavigationService.Navigate(new PageSearchResults(query));
         }
@@ -36,6 +49,7 @@ namespace WpfApp1
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             SearchBox.Text = "";
+            SearchBox.Focus();
         }
 
         private void Create_Person(object sender, RoutedEventArgs e)
@@ -43,5 +57,4 @@ namespace WpfApp1
             NavigationService.Navigate(new PageCreate());
         }
     }
-
 }
