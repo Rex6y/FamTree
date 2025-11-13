@@ -63,8 +63,7 @@ namespace WpfApp1
             var item = new SearchResultItem(id, p);
             item.ItemClicked += (s, personId) =>
             {
-                // NavigationService.Navigate(new PersonPage(personId));
-                MessageBox.Show($"Clicked on person ID: {personId}\nName: {p.Name}");
+                NavigationService.Navigate(new Tree(personId));
             };
             return item;
         }
