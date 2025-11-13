@@ -42,15 +42,16 @@
                     Height="40"
                     Background="White">
                             <TextBox x:Name="SearchBox"
-                             FontSize="16"
+                             FontSize="14"
                              Padding="10,8,45,8"
                              BorderBrush="#CCCCCC"
                              BorderThickness="1"
-                             VerticalContentAlignment="Center" Margin="0,0,0,258"/>
+                             KeyUp="SearchBox_KeyDown"
+                             VerticalContentAlignment="Center"/>
                         </Border>
                         <Button Content="🔍"
                             Width="35"
-                            Height="35"
+                            Height="40"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
                             Margin="0,0,2,0"
