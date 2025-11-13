@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Windows.Input;
 
 public class Person
 {
@@ -58,7 +59,7 @@ static class FamilyTree
         }
     }
 
-    private static void Save()
+    public static void Save()
     {
         var data = new SaveData
         {
@@ -120,5 +121,102 @@ static class FamilyTree
         }
 
         return results;
+    }
+
+    public static Person GetPerson(int id)
+    {
+        if (Tree.ContainsKey(id))
+            return Tree[id];
+        return null;
+    }
+    public static void combineChildren(int dad, int mom)
+    {
+        var combinedChildren = Tree[dad].Children
+        .Union(Tree[mom].Children)
+        .Distinct()
+        .ToList();
+        Tree[dad].Children = combinedChildren;
+        Tree[mom].Children = combinedChildren;
+    }
+    public static int addFather(int id, int dad)
+    {
+        Tree[id].Dad = dad;
+        if (!Tree[dad].Children.Contains(id)) Tree[dad].Children.Add(id);
+        if (Tree[dad].Spouse.HasValue)
+        {
+            Tree[id].Mom = Tree[dad].Spouse;
+            combineChildren(dad, Tree[dad].Spouse.Value);
+        }
+        else if (Tree[id].Mom.HasValue)
+        {
+            Tree[dad].Spouse = Tree[id].Mom;
+            Tree[Tree[id].Mom.Value].Spouse = dad;
+            combineChildren(dad, Tree[id].Mom.Value);
+        }
+        Save();
+        return 0;
+    }
+    public static int addMother(int id, int mom)
+    {
+        Tree[id].Mom = mom;
+        if (!Tree[mom].Children.Contains(id)) Tree[mom].Children.Add(id);
+        if (Tree[mom].Spouse.HasValue)
+        {
+            Tree[id].Dad = Tree[mom].Spouse;
+            combineChildren(mom, Tree[mom].Spouse.Value);
+        }
+        else if (Tree[id].Dad.HasValue)
+        {
+            Tree[mom].Spouse = Tree[id].Dad;
+            Tree[Tree[id].Dad.Value].Spouse = mom;
+            combineChildren(mom, Tree[id].Dad.Value);
+        }
+        Save();
+        return 0;
+    }
+    public static int addSpouse(int id, int spouse)
+    {
+        Tree[id].Spouse = spouse;
+        Tree[spouse].Spouse = id;
+        combineChildren(id, spouse);
+        foreach (int childId in Tree[id].Children)
+        {
+            if (Tree[id].Gender)
+            {
+                Tree[childId].Dad = id;
+                Tree[childId].Mom = spouse;
+            }
+            else
+            {
+                Tree[childId].Dad = spouse;
+                Tree[childId].Mom = id;
+            }
+        }
+        Save();
+        return 0;
+    }
+    public static int addChildren(int id, int child)
+    {
+        if (!Tree[id].Children.Contains(child))
+        {
+            Tree[id].Children.Add(child);
+        }
+        if (Tree[id].Gender)
+        {
+            Tree[child].Dad = id;
+            if (Tree[id].Spouse.HasValue) Tree[child].Mom = Tree[id].Spouse.Value;
+        }
+        else
+        {
+            Tree[child].Mom = id;
+            if (Tree[id].Spouse.HasValue) Tree[child].Dad = Tree[id].Spouse.Value;
+        }
+        Save();
+        return 0;
+    }
+    public static void updatePfp(int id, byte[]? image)
+    {
+        Tree[id].Pfp = image;
+        Save();
     }
 }
