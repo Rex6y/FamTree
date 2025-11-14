@@ -41,8 +41,14 @@
         <Border Grid.Row="0" Background="#f5f5f5" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="10">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button x:Name="BackButton" Content="← Back" Padding="15,5" Click="BackButton_Click"
-                            Background="#757575" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                    <Button x:Name="BackButton" 
+                    Content="←" 
+                    FontSize="30"
+                    Click="BackButton_Click"
+                    Padding="10,5"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock x:Name="RootPersonText" Text="Loading..." VerticalAlignment="Center" 

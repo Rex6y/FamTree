@@ -25,6 +25,13 @@ namespace WpfApp1
         {
             InitializeComponent();
             FamilyTree.Load();
+            this.Loaded += (s, e) =>
+            {
+                while (NavigationService != null && NavigationService.CanGoBack)
+                {
+                    NavigationService.RemoveBackEntry();
+                }
+            };
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
