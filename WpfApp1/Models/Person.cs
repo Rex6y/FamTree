@@ -204,12 +204,20 @@ static class FamilyTree
         if (Tree[id].Gender)
         {
             Tree[child].Dad = id;
-            if (Tree[id].Spouse.HasValue) Tree[child].Mom = Tree[id].Spouse.Value;
+            if (Tree[id].Spouse.HasValue)
+            {
+                Tree[child].Mom = Tree[id].Spouse.Value;
+                combineChildren(id, Tree[id].Spouse.Value);
+            }
         }
         else
         {
             Tree[child].Mom = id;
-            if (Tree[id].Spouse.HasValue) Tree[child].Dad = Tree[id].Spouse.Value;
+            if (Tree[id].Spouse.HasValue)
+            {
+                Tree[child].Dad = Tree[id].Spouse.Value;
+                combineChildren(id, Tree[id].Spouse.Value);
+            }
         }
         Save();
         return 0;
@@ -218,5 +226,10 @@ static class FamilyTree
     {
         Tree[id].Pfp = image;
         Save();
+    }
+
+    public static void dynamicGen(int id, int gen)
+    {
+        Tree[id].Generation = gen;
     }
 }

@@ -72,7 +72,7 @@ namespace WpfApp1
         {
             if (NavigationService.CanGoBack)
             {
-                NavigationService.GoBack();
+                NavigationService.Navigate(new PageDefault());
             }
         }
 

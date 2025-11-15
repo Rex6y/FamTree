@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,16 +22,16 @@ namespace WpfApp1
     {
         public int? SelectedPersonId { get; private set; }
 
-        public WindowSelector(bool? genderFilter)
+        public WindowSelector(bool? genderFilter, int id)
         {
             InitializeComponent();
-            LoadPeople(genderFilter);
+            LoadPeople(genderFilter, id);
         }
 
-        private void LoadPeople(bool? genderFilter)
+        private void LoadPeople(bool? genderFilter, int personid)
         {
             var allPeople = FamilyTree.SearchByName("");
-
+            allPeople.RemoveAll(x => x.id == personid);
             if (genderFilter.HasValue)
             {
                 allPeople = allPeople.Where(p => p.person.Gender == genderFilter.Value).ToList();
@@ -40,7 +41,7 @@ namespace WpfApp1
             {
                 var item = new ListBoxItem
                 {
-                    Content = $"{person.Name} ({person.BirthDate:yyyy-MM-dd})",
+                    Content = $"{person.Name} ({person.BirthDate:dd-MM-yyyy}) - {(person.Gender ? "Male" : "Female")}",
                     Tag = id
                 };
                 PeopleListBox.Items.Add(item);

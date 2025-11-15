@@ -17,8 +17,14 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="White" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="20">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="BackButton" Content="← Back" Padding="10,5" Click="BackButton_Click"
-                        Background="#757575" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,20,0"/>
+                <Button x:Name="BackButton" 
+                Content="←" 
+                FontSize="30"
+                Click="BackButton_Click"
+                Padding="10,5"
+                Background="Transparent"
+                BorderThickness="0"
+                Cursor="Hand"/>
                 <TextBlock x:Name="PageTitle" Text="Person Profile" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>

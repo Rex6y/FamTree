@@ -23,7 +23,6 @@ namespace WpfApp1
 
         private void Profile_Loaded(object sender, RoutedEventArgs e)
         {
-            FamilyTree.Load();
             LoadPersonData();
         }
 
@@ -186,7 +185,7 @@ namespace WpfApp1
 
         private void SetDad_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(true); // true = male only
+            var selector = new WindowSelector(true, personId); // true = male only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int dadId = selector.SelectedPersonId.Value;
@@ -199,7 +198,7 @@ namespace WpfApp1
 
         private void SetMom_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(false); // false = female only
+            var selector = new WindowSelector(false, personId); // false = female only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int momId = selector.SelectedPersonId.Value;
@@ -213,7 +212,7 @@ namespace WpfApp1
         private void SetSpouse_Click(object sender, RoutedEventArgs e)
         {
             Person person = FamilyTree.GetPerson(personId);
-            var selector = new WindowSelector(!person.Gender); // opposite gender
+            var selector = new WindowSelector(!person.Gender, personId); // opposite gender
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int spouseId = selector.SelectedPersonId.Value;
@@ -226,7 +225,7 @@ namespace WpfApp1
 
         private void AddChild_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(null);
+            var selector = new WindowSelector(null, personId);
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int childId = selector.SelectedPersonId.Value;
@@ -256,10 +255,7 @@ namespace WpfApp1
                 FamilyTree.RemovePerson(personId);
                 MessageBox.Show("Person deleted!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                if (NavigationService != null && NavigationService.CanGoBack)
-                {
-                    NavigationService.GoBack();
-                }
+                NavigationService.Navigate(new PageSearchResults(""));
             }
         }
     }

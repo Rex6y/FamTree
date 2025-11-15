@@ -28,7 +28,7 @@ namespace WpfApp1
         }
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.GoBack();
+            NavigationService.Navigate(new PageDefault());
         }
         private void Pfp_click(object sender, MouseButtonEventArgs e)
         {
@@ -100,7 +100,7 @@ namespace WpfApp1
             }
 
             int id = FamilyTree.AddPerson(Name, Gender, birthDate, 0, null, null, null, imageData);
-            NavigationService.GoBack();
+            NavigationService.Navigate(new PageDefault());
             return;
         }
     }

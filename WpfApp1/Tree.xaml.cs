@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WpfApp1;
 
 namespace WpfApp1
 {
@@ -14,8 +15,11 @@ namespace WpfApp1
     {
         private const double CardWidth = 180;
         private const double CardHeight = 120;
-        private const double HorizontalSpacing = 80;
+        private const double HorizontalSpacing = 60;
         private const double VerticalSpacing = 150;
+        private const double StartX = 50;
+        private const double StartY = 50;
+
         private double currentZoom = 1.0;
         private int rootPersonId;
 
@@ -33,7 +37,7 @@ namespace WpfApp1
 
             if (rootPerson != null)
             {
-                RootPersonText.Text = $"Family Tree: {rootPerson.Name}";
+                RootPersonText.Text = $"Current: {rootPerson.Name}";
             }
 
             DrawTree();
@@ -41,10 +45,13 @@ namespace WpfApp1
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Navigate back to previous page
             if (NavigationService != null && NavigationService.CanGoBack)
             {
-                NavigationService.GoBack();
+                NavigationService.Navigate(new PageSearchResults(""));
+                while (NavigationService.CanGoBack)
+                {
+                    NavigationService.RemoveBackEntry();
+                }
             }
         }
 
@@ -82,535 +89,558 @@ namespace WpfApp1
                 return;
             }
 
-            // Calculate positions for all nodes
-            var nodePositions = new Dictionary<int, Point>();
-            CalculateTreeLayout(rootPersonId, nodePositions);
+            // Build the tree structure (generations with their people)
+            var generations = BuildGenerationsList(rootPersonId);
 
-            // DEBUG: Show generation assignments
-            var generations = new Dictionary<int, int>();
-            CalculateActualGenerations(rootPersonId, 0, generations, new HashSet<int>());
+            // Calculate positions for everyone
+            var positions = CalculatePositions(generations);
 
-            string debugInfo = "Generation assignments:\n";
-            foreach (var kvp in generations.OrderBy(x => x.Value))
-            {
-                Person p = FamilyTree.GetPerson(kvp.Key);
-                debugInfo += $"Gen {kvp.Value}: {p?.Name} (ID: {kvp.Key})\n";
-            }
-            System.Diagnostics.Debug.WriteLine(debugInfo);
-
-            // Draw connections first (so they appear behind cards)
-            DrawConnections(nodePositions);
+            // Draw connections between people
+            DrawConnections(positions, generations);
 
             // Draw person cards
-            DrawPersonCards(nodePositions);
+            DrawPersonCards(positions);
 
             // Adjust canvas size
-            AdjustCanvasSize(nodePositions);
+            AdjustCanvasSize(positions);
         }
 
-        private void CalculateTreeLayout(int rootId, Dictionary<int, Point> positions)
+        /*private List<List<int>> BuildGenerationsList(int startPersonId)
         {
-            // Calculate actual generation levels based on tree structure from root
-            var generationLevels = new Dictionary<int, List<int>>();
-            var actualGenerations = new Dictionary<int, int>();
-            CalculateActualGenerations(rootId, 0, actualGenerations, new HashSet<int>());
+            var generations = new List<List<int>>();
+            var currentPerson = FamilyTree.GetPerson(startPersonId);
 
-            // Build generation lists using calculated generations
-            foreach (var kvp in actualGenerations)
+            if (currentPerson == null)
+                return generations;
+
+            // Start with the root person's generation (generation 0)
+            // Include all siblings (same parents)
+            var currentGeneration = GetSiblingsWithSpouses(startPersonId);
+            generations.Add(currentGeneration);
+
+            // Go up through ancestors (dad's lineage) - show ALL siblings at each level
+            int currentId = startPersonId;
+            while (true)
             {
-                int personId = kvp.Key;
-                int genLevel = kvp.Value;
+                Person person = FamilyTree.GetPerson(currentId);
+                if (person == null || !person.Dad.HasValue)
+                    break;
 
-                if (!generationLevels.ContainsKey(genLevel))
-                    generationLevels[genLevel] = new List<int>();
+                // Build parent generation - include dad's siblings
+                var parentGen = GetSiblingsWithSpouses(person.Dad.Value);
 
-                if (!generationLevels[genLevel].Contains(personId))
-                    generationLevels[genLevel].Add(personId);
+                if (parentGen.Count > 0)
+                {
+                    generations.Insert(0, parentGen); // Insert at beginning (ancestors go on top)
+                    currentId = person.Dad.Value; // Move up to dad
+                }
+                else
+                {
+                    break;
+                }
             }
 
-            // Position each generation
-            double currentY = 50;
-            var generationXPositions = new Dictionary<int, double>(); // Track X position for each generation
+            // Go down through descendants (ONLY root person's children, not siblings' children)
+            AddDescendants(startPersonId, generations);
 
-            foreach (var generation in generationLevels.OrderBy(g => g.Key))
+            return generations;
+        }*/
+
+        private List<List<int>> BuildGenerationsList(int personId)
+        {
+            var generations = new List<List<int>>();
+            var person = FamilyTree.GetPerson(personId);
+            if (person == null) return generations;
+
+            //Get Ancestors
+            int? current = personId;
+            while (current != null)
             {
-                var peopleInGen = generation.Value;
-                var familyUnits = BuildFamilyUnits(peopleInGen, generation.Key);
-
-                // Calculate total width needed for this generation
-                double totalWidth = CalculateFamilyUnitsWidth(familyUnits);
-                double startX = 50;
-
-                // Position each family unit
-                double currentX = startX;
-                foreach (var unit in familyUnits)
+                person = FamilyTree.GetPerson(current.Value);
+                int? parent = person.Dad.HasValue ? person.Dad : person.Mom;
+                if (parent.HasValue)
                 {
-                    if (unit.Count == 2)
-                    {
-                        // Couple
-                        int leftId = unit[0];
-                        int rightId = unit[1];
+                    List<int> Gen = GetSiblingsWithSpouses(parent.Value);
+                    if (Gen.Count > 0) generations.Insert(0, Gen);
+                }
+                else 
+                { 
+                    if (person.Spouse.HasValue) generations.Insert(0, new List<int> { current.Value, person.Spouse.Value });
+                    else generations.Insert(0, new List<int> { current.Value });
+				}
+				current = parent;
+            }
 
-                        positions[leftId] = new Point(currentX, currentY);
-                        positions[rightId] = new Point(currentX + CardWidth + HorizontalSpacing, currentY);
-                        currentX += (CardWidth * 2) + HorizontalSpacing + (HorizontalSpacing * 2);
-                    }
-                    else
+            //Get Descendants
+            TraverseDown(new List<int> { personId }, generations);
+
+            //Update Generation
+            for (int i=0; i<generations.Count; i++)
+            {
+                var generation = generations[i];
+                foreach (var id in generation) FamilyTree.dynamicGen(id, i);
+            }
+
+            return generations;
+        }
+        private List<int> GetSiblingsWithSpouses(int personId)
+        {
+            var siblings = new List<int>();
+            var person = FamilyTree.GetPerson(personId);
+            if (person==null) return siblings;
+
+            foreach (int child in person.Children)
+            {
+                siblings.Add(child);
+                var c = FamilyTree.GetPerson(child);
+                if (c.Spouse.HasValue)
+                {
+                    siblings.Add(c.Spouse.Value);
+                }
+            }
+            return siblings;
+        }
+
+        private void TraverseDown(List<int> currentGen, List<List<int>> generations)
+        {
+			var newGen = new List<int>();
+			foreach (int parent in  currentGen)
+            {
+                var person = FamilyTree.GetPerson(parent);
+                foreach (var child in person.Children)
+                {
+                    if (!newGen.Contains(child))
                     {
-                        // Single person
-                        positions[unit[0]] = new Point(currentX, currentY);
-                        currentX += CardWidth + (HorizontalSpacing * 2);
+                        newGen.Add(child);
+                        var c = FamilyTree.GetPerson(child);
+                        if (c.Spouse.HasValue) newGen.Add(c.Spouse.Value);
                     }
+                }
+            }
+            if (newGen.Count>0)
+            {
+				generations.Add(newGen);
+                TraverseDown(newGen, generations);
+			}
+        }
+        /*private List<int> GetSiblingsWithSpouses(int personId)
+        {
+            var result = new List<int>();
+            Person person = FamilyTree.GetPerson(personId);
+
+            if (person == null)
+                return result;
+
+            var siblings = new List<int>();
+
+            // Get all siblings from parents
+            if (person.Dad.HasValue || person.Mom.HasValue)
+            {
+                // Get dad's children
+                if (person.Dad.HasValue)
+                {
+                    Person dad = FamilyTree.GetPerson(person.Dad.Value);
+                    if (dad != null)
+                    {
+                        siblings.AddRange(dad.Children);
+                    }
+                }
+
+                // Get mom's children (union with dad's)
+                if (person.Mom.HasValue)
+                {
+                    Person mom = FamilyTree.GetPerson(person.Mom.Value);
+                    if (mom != null)
+                    {
+                        foreach (int childId in mom.Children)
+                        {
+                            if (!siblings.Contains(childId))
+                                siblings.Add(childId);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // No parents, just this person
+                siblings.Add(personId);
+            }
+
+            // Add siblings and their spouses to result
+            foreach (int siblingId in siblings)
+            {
+                if (!result.Contains(siblingId))
+                {
+                    result.Add(siblingId);
+
+                    Person sibling = FamilyTree.GetPerson(siblingId);
+                    if (sibling?.Spouse != null && !result.Contains(sibling.Spouse.Value))
+                    {
+                        result.Add(sibling.Spouse.Value);
+                    }
+                }
+            }
+
+            return result;
+        }*/
+
+        private void AddDescendants(int personId, List<List<int>> generations)
+        {
+            Person person = FamilyTree.GetPerson(personId);
+            if (person == null || person.Children.Count == 0)
+                return;
+
+            // Build children generation - include all children and their spouses
+            var childrenGen = new List<int>();
+
+            foreach (int childId in person.Children)
+            {
+                if (!childrenGen.Contains(childId))
+                {
+                    childrenGen.Add(childId);
+
+                    // Add child's spouse right next to them
+                    Person child = FamilyTree.GetPerson(childId);
+                    if (child?.Spouse != null && !childrenGen.Contains(child.Spouse.Value))
+                    {
+                        childrenGen.Add(child.Spouse.Value);
+                    }
+                }
+            }
+
+            if (childrenGen.Count > 0)
+            {
+                generations.Add(childrenGen);
+
+                // Recursively add descendants from ALL children in this generation
+                AddDescendantsFromGeneration(childrenGen, generations);
+            }
+        }
+
+        private void AddDescendantsFromGeneration(List<int> currentGeneration, List<List<int>> generations)
+        {
+            var nextGen = new List<int>();
+            var processedChildren = new HashSet<int>();
+
+            // Collect all children from everyone in current generation
+            foreach (int parentId in currentGeneration)
+            {
+                Person parent = FamilyTree.GetPerson(parentId);
+                if (parent == null)
+                    continue;
+
+                foreach (int childId in parent.Children)
+                {
+                    if (!processedChildren.Contains(childId))
+                    {
+                        nextGen.Add(childId);
+                        processedChildren.Add(childId);
+
+                        // Add child's spouse
+                        Person child = FamilyTree.GetPerson(childId);
+                        if (child?.Spouse != null && !processedChildren.Contains(child.Spouse.Value))
+                        {
+                            nextGen.Add(child.Spouse.Value);
+                            processedChildren.Add(child.Spouse.Value);
+                        }
+                    }
+                }
+            }
+
+            if (nextGen.Count > 0)
+            {
+                generations.Add(nextGen);
+                // Recursively process the next generation
+                AddDescendantsFromGeneration(nextGen, generations);
+            }
+        }
+
+        private Dictionary<int, Point> CalculatePositions(List<List<int>> generations)
+        {
+            var positions = new Dictionary<int, Point>();
+            double currentY = StartY;
+
+            foreach (var generation in generations)
+            {
+                double currentX = StartX;
+
+                for (int i = 0; i < generation.Count; i++)
+                {
+                    int personId = generation[i];
+                    positions[personId] = new Point(currentX, currentY);
+
+                    currentX += CardWidth + HorizontalSpacing;
                 }
 
                 currentY += CardHeight + VerticalSpacing;
             }
 
-            // Adjust positions to center children under parents
-            CenterChildrenUnderParents(positions, actualGenerations);
+            // Center children under parents (process from top to bottom)
+            CenterChildrenUnderParents(positions, generations);
+
+            return positions;
         }
 
-        private List<List<int>> BuildFamilyUnits(List<int> peopleInGen, int generation)
+        private void CenterChildrenUnderParents(Dictionary<int, Point> positions, List<List<int>> generations)
         {
-            var units = new List<List<int>>();
-            var processed = new HashSet<int>();
-
-            foreach (int personId in peopleInGen)
+            // Process from top generation down to ensure proper cascading
+            for (int genIndex = 0; genIndex < generations.Count - 1; genIndex++)
             {
-                if (processed.Contains(personId))
-                    continue;
+                var currentGen = generations[genIndex];
+                var nextGen = generations[genIndex + 1];
 
-                Person person = FamilyTree.GetPerson(personId);
-                if (person == null)
-                    continue;
+                // Track which people in current generation have been processed as part of a couple
+                var processed = new HashSet<int>();
 
-                var unit = new List<int> { personId };
-                processed.Add(personId);
+                // Also track which children have been positioned
+                var positionedChildren = new HashSet<int>();
 
-                // Check for spouse
-                if (person.Spouse.HasValue && peopleInGen.Contains(person.Spouse.Value))
+                for (int i = 0; i < currentGen.Count; i++)
                 {
-                    // Determine order: male on left, female on right
-                    Person spouse = FamilyTree.GetPerson(person.Spouse.Value);
-                    if (spouse != null && !processed.Contains(person.Spouse.Value))
-                    {
-                        if (person.Gender) // person is male
-                        {
-                            unit = new List<int> { personId, person.Spouse.Value };
-                        }
-                        else // person is female
-                        {
-                            unit = new List<int> { person.Spouse.Value, personId };
-                        }
-                        processed.Add(person.Spouse.Value);
-                    }
-                }
+                    int personId = currentGen[i];
 
-                units.Add(unit);
-            }
-
-            return units;
-        }
-
-        private double CalculateFamilyUnitsWidth(List<List<int>> units)
-        {
-            double width = 0;
-            foreach (var unit in units)
-            {
-                if (unit.Count == 2)
-                {
-                    width += (CardWidth * 2) + HorizontalSpacing + (HorizontalSpacing * 2);
-                }
-                else
-                {
-                    width += CardWidth + (HorizontalSpacing * 2);
-                }
-            }
-            return width;
-        }
-
-        private void CenterChildrenUnderParents(Dictionary<int, Point> positions, Dictionary<int, int> generations)
-        {
-            // Group people by generation and process from top to bottom
-            var genGroups = generations.GroupBy(g => g.Value).OrderBy(g => g.Key);
-
-            foreach (var genGroup in genGroups)
-            {
-                foreach (var personKvp in genGroup)
-                {
-                    int parentId = personKvp.Key;
-                    Person parent = FamilyTree.GetPerson(parentId);
-
-                    if (parent == null || parent.Children.Count == 0)
+                    if (processed.Contains(personId))
                         continue;
 
-                    // Get children that exist in the tree
-                    var childrenIds = parent.Children.Where(cId => positions.ContainsKey(cId)).ToList();
-                    if (childrenIds.Count == 0)
-                        continue;
-
-                    // Calculate parent center
-                    Point parentPos = positions[parentId];
-                    double parentCenterX;
-
-                    if (parent.Spouse.HasValue && positions.ContainsKey(parent.Spouse.Value))
-                    {
-                        Point spousePos = positions[parent.Spouse.Value];
-                        parentCenterX = (parentPos.X + spousePos.X + CardWidth) / 2;
-                    }
-                    else
-                    {
-                        parentCenterX = parentPos.X + CardWidth / 2;
-                    }
-
-                    // Calculate children's total width
-                    double childrenWidth = 0;
-                    var childrenWithSpouses = new Dictionary<int, int?>();
-
-                    foreach (int childId in childrenIds)
-                    {
-                        childrenWithSpouses[childId] = null;
-                        Person child = FamilyTree.GetPerson(childId);
-
-                        if (child?.Spouse != null && positions.ContainsKey(child.Spouse.Value))
-                        {
-                            childrenWithSpouses[childId] = child.Spouse.Value;
-                            childrenWidth += (CardWidth * 2) + HorizontalSpacing;
-                        }
-                        else
-                        {
-                            childrenWidth += CardWidth;
-                        }
-
-                        if (childId != childrenIds.Last())
-                            childrenWidth += HorizontalSpacing * 2;
-                    }
-
-                    // Position children centered under parents
-                    double startX = parentCenterX - childrenWidth / 2;
-                    double currentX = startX;
-
-                    foreach (int childId in childrenIds)
-                    {
-                        Point childPos = positions[childId];
-                        positions[childId] = new Point(currentX, childPos.Y);
-
-                        int? spouseId = childrenWithSpouses[childId];
-                        if (spouseId.HasValue)
-                        {
-                            Point spousePos = positions[spouseId.Value];
-                            positions[spouseId.Value] = new Point(currentX + CardWidth + HorizontalSpacing, spousePos.Y);
-                            currentX += (CardWidth * 2) + HorizontalSpacing;
-                        }
-                        else
-                        {
-                            currentX += CardWidth;
-                        }
-
-                        if (childId != childrenIds.Last())
-                            currentX += HorizontalSpacing * 2;
-                    }
-                }
-            }
-        }
-
-        private void CalculateActualGenerations(int personId, int generation, Dictionary<int, int> generations, HashSet<int> visited)
-        {
-            Person person = FamilyTree.GetPerson(personId);
-            if (person == null || visited.Contains(personId))
-                return;
-
-            visited.Add(personId);
-
-            // Set this person's generation
-            generations[personId] = generation;
-
-            // CRITICAL: Set spouse to SAME generation immediately
-            if (person.Spouse.HasValue)
-            {
-                generations[person.Spouse.Value] = generation;
-            }
-
-            // PATERNAL LINE PRIORITY: Recurse to DAD first (generation - 1)
-            if (person.Dad.HasValue)
-            {
-                Person dad = FamilyTree.GetPerson(person.Dad.Value);
-                if (dad != null && !visited.Contains(person.Dad.Value))
-                {
-                    CalculateActualGenerations(person.Dad.Value, generation - 1, generations, visited);
-                }
-            }
-
-            // Don't automatically show mom's ancestors - only show mom herself
-            if (person.Mom.HasValue)
-            {
-                Person mom = FamilyTree.GetPerson(person.Mom.Value);
-                if (mom != null && !generations.ContainsKey(person.Mom.Value))
-                {
-                    generations[person.Mom.Value] = generation - 1;
-
-                    // Add mom's spouse (the dad) if not already added
-                    if (mom.Spouse.HasValue && !generations.ContainsKey(mom.Spouse.Value))
-                    {
-                        generations[mom.Spouse.Value] = generation - 1;
-                    }
-                }
-            }
-
-            // Recurse to children (generation + 1)
-            foreach (int childId in person.Children)
-            {
-                if (!visited.Contains(childId))
-                {
-                    CalculateActualGenerations(childId, generation + 1, generations, visited);
-                }
-            }
-
-            // Also process spouse's relationships
-            if (person.Spouse.HasValue && !visited.Contains(person.Spouse.Value))
-            {
-                Person spouse = FamilyTree.GetPerson(person.Spouse.Value);
-                if (spouse != null)
-                {
-                    visited.Add(person.Spouse.Value);
-
-                    // Process spouse's children
-                    foreach (int childId in spouse.Children)
-                    {
-                        if (!visited.Contains(childId))
-                        {
-                            CalculateActualGenerations(childId, generation + 1, generations, visited);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void BuildGenerationLevels(int personId, Dictionary<int, List<int>> levels, HashSet<int> visited)
-        {
-            // This method is no longer used - replaced by CalculateActualGenerations
-        }
-
-        private void AdjustSpousePositions(Dictionary<int, Point> positions)
-        {
-            // This method is no longer needed - positioning happens in CalculateTreeLayout
-        }
-
-        private void PositionChildrenUnderParents(Dictionary<int, Point> positions, Dictionary<int, List<int>> generationLevels)
-        {
-            foreach (var generation in generationLevels.OrderBy(g => g.Key))
-            {
-                foreach (int personId in generation.Value)
-                {
                     Person person = FamilyTree.GetPerson(personId);
                     if (person == null || person.Children.Count == 0)
                         continue;
 
-                    // Get parent positions
-                    Point parentPos = positions[personId];
-                    Point? spousePos = null;
+                    // Check if this is a couple (spouse is next in the list)
+                    bool isCoupleWithNext = false;
+                    int? spouseId = null;
 
-                    if (person.Spouse.HasValue && positions.ContainsKey(person.Spouse.Value))
+                    if (i + 1 < currentGen.Count && person.Spouse.HasValue && currentGen[i + 1] == person.Spouse.Value)
                     {
-                        spousePos = positions[person.Spouse.Value];
+                        isCoupleWithNext = true;
+                        spouseId = person.Spouse.Value;
+                        processed.Add(spouseId.Value);
                     }
 
-                    // Calculate center point between parents
-                    double centerX;
-                    if (spousePos.HasValue)
+                    processed.Add(personId);
+
+                    // Find this parent's ACTUAL children (not including their spouses who aren't children)
+                    var children = person.Children.Where(cId => nextGen.Contains(cId) && !positionedChildren.Contains(cId)).ToList();
+                    if (children.Count == 0)
+                        continue;
+
+                    // Calculate parent center point
+                    Point personPos = positions[personId];
+                    double parentCenterX;
+
+                    if (isCoupleWithNext && spouseId.HasValue)
                     {
-                        centerX = (parentPos.X + spousePos.Value.X + CardWidth) / 2;
+                        Point spousePos = positions[spouseId.Value];
+                        parentCenterX = (personPos.X + spousePos.X + CardWidth) / 2;
                     }
                     else
                     {
-                        centerX = parentPos.X + CardWidth / 2;
+                        parentCenterX = personPos.X + CardWidth / 2;
                     }
 
-                    // Get all children that are actually in the tree
-                    var childrenInTree = person.Children.Where(cId => positions.ContainsKey(cId)).ToList();
+                    // Calculate total width needed for all children (including their spouses)
+                    double totalChildrenWidth = 0;
+                    var childInfo = new List<(int childId, int? spouseId, double width)>();
 
-                    if (childrenInTree.Count == 0)
+                    for (int j = 0; j < children.Count; j++)
+                    {
+                        int childId = children[j];
+                        Person child = FamilyTree.GetPerson(childId);
+                        int childIndex = nextGen.IndexOf(childId);
+
+                        double width = CardWidth;
+                        int? childSpouseId = null;
+
+                        // Check if the next person in the list is this child's spouse
+                        if (child?.Spouse != null && childIndex + 1 < nextGen.Count && nextGen[childIndex + 1] == child.Spouse.Value)
+                        {
+                            childSpouseId = child.Spouse.Value;
+                            // Only include spouse width if there are multiple children
+                            // If only 1 child, we center over the child only, not the child+spouse pair
+                            if (children.Count > 1)
+                            {
+                                width = (CardWidth * 2) + HorizontalSpacing;
+                            }
+                            positionedChildren.Add(child.Spouse.Value); // Mark spouse as positioned
+                        }
+
+                        childInfo.Add((childId, childSpouseId, width));
+                        totalChildrenWidth += width;
+
+                        if (j < children.Count - 1)
+                            totalChildrenWidth += HorizontalSpacing;
+
+                        positionedChildren.Add(childId);
+                    }
+
+                    // Center children under parent(s)
+                    double startX = parentCenterX - totalChildrenWidth / 2;
+                    double childX = startX;
+
+                    foreach (var (childId, childSpouseId, width) in childInfo)
+                    {
+                        positions[childId] = new Point(childX, positions[childId].Y);
+
+                        if (childSpouseId.HasValue)
+                        {
+                            positions[childSpouseId.Value] = new Point(childX + CardWidth + HorizontalSpacing, positions[childSpouseId.Value].Y);
+                        }
+
+                        childX += width + HorizontalSpacing;
+                    }
+                }
+            }
+
+            // After all centering, shift everything right if any card went too far left
+            double minX = positions.Values.Min(p => p.X);
+            if (minX < StartX)
+            {
+                double shiftAmount = StartX - minX;
+                var keys = positions.Keys.ToList();
+                foreach (var key in keys)
+                {
+                    Point pos = positions[key];
+                    positions[key] = new Point(pos.X + shiftAmount, pos.Y);
+                }
+            }
+        }
+
+        private void DrawConnections(Dictionary<int, Point> positions, List<List<int>> generations)
+        {
+            var drawnSpouses = new HashSet<(int, int)>();
+
+            for (int genIndex = 0; genIndex < generations.Count; genIndex++)
+            {
+                var generation = generations[genIndex];
+
+                for (int i = 0; i < generation.Count; i++)
+                {
+                    int personId = generation[i];
+                    Person person = FamilyTree.GetPerson(personId);
+
+                    if (person == null)
                         continue;
 
-                    // Calculate total width needed for children
-                    double childrenWidth = childrenInTree.Count * CardWidth + (childrenInTree.Count - 1) * HorizontalSpacing;
-                    double startX = centerX - childrenWidth / 2;
+                    Point personPos = positions[personId];
 
-                    // Position each child
-                    for (int i = 0; i < childrenInTree.Count; i++)
+                    // Draw spouse connection
+                    if (i + 1 < generation.Count && person.Spouse.HasValue && generation[i + 1] == person.Spouse.Value)
                     {
-                        int childId = childrenInTree[i];
-                        double childX = startX + i * (CardWidth + HorizontalSpacing);
+                        var pair = (Math.Min(personId, person.Spouse.Value), Math.Max(personId, person.Spouse.Value));
 
-                        // Keep the Y position, just adjust X
-                        Point currentPos = positions[childId];
-                        positions[childId] = new Point(childX, currentPos.Y);
-
-                        // If child has a spouse, adjust spouse position too
-                        Person child = FamilyTree.GetPerson(childId);
-                        if (child?.Spouse != null && positions.ContainsKey(child.Spouse.Value))
+                        if (!drawnSpouses.Contains(pair))
                         {
-                            positions[child.Spouse.Value] = new Point(childX + CardWidth + HorizontalSpacing, currentPos.Y);
+                            Point spousePos = positions[person.Spouse.Value];
+                            double y = personPos.Y + CardHeight / 2;
+
+                            Line spouseLine = new Line
+                            {
+                                X1 = personPos.X + CardWidth,
+                                Y1 = y,
+                                X2 = spousePos.X,
+                                Y2 = y,
+                                Stroke = new SolidColorBrush(Color.FromRgb(244, 67, 54)),
+                                StrokeThickness = 3
+                            };
+                            TreeCanvas.Children.Add(spouseLine);
+
+                            drawnSpouses.Add(pair);
+
+                            // Draw lines to children
+                            if (person.Children.Count > 0 && genIndex + 1 < generations.Count)
+                            {
+                                DrawChildrenConnections(personId, person.Spouse.Value, positions, generations[genIndex + 1]);
+                            }
                         }
+                    }
+                    else if (person.Children.Count > 0 && genIndex + 1 < generations.Count && !person.Spouse.HasValue)
+                    {
+                        // Single parent
+                        DrawChildrenConnections(personId, null, positions, generations[genIndex + 1]);
                     }
                 }
             }
         }
 
-        private void DrawConnections(Dictionary<int, Point> positions)
+        private void DrawChildrenConnections(int parentId, int? spouseId, Dictionary<int, Point> positions, List<int> childGeneration)
         {
-            var drawnSpouses = new HashSet<(int, int)>();
+            Person parent = FamilyTree.GetPerson(parentId);
+            if (parent == null)
+                return;
 
-            foreach (var kvp in positions)
+            var children = parent.Children.Where(cId => childGeneration.Contains(cId)).ToList();
+            if (children.Count == 0)
+                return;
+
+            Point parentPos = positions[parentId];
+            double parentCenterX = parentPos.X + CardWidth / 2;
+            double startY = parentPos.Y + CardHeight;
+            double spouseLineY = parentPos.Y + CardHeight / 2;
+
+            if (spouseId.HasValue)
             {
-                int personId = kvp.Key;
-                Person person = FamilyTree.GetPerson(personId);
-                if (person == null)
-                    continue;
+                Point spousePos = positions[spouseId.Value];
+                parentCenterX = (parentPos.X + spousePos.X + CardWidth) / 2;
+            }
 
-                // Draw spouse connection (horizontal line between spouses)
-                if (person.Spouse.HasValue && positions.ContainsKey(person.Spouse.Value))
+            double verticalLineLength = VerticalSpacing / 2;
+
+            if (spouseId.HasValue)
+            {
+                Line verticalLineToSpouse = new Line
                 {
-                    var pair = personId < person.Spouse.Value
-                        ? (personId, person.Spouse.Value)
-                        : (person.Spouse.Value, personId);
-
-                    if (!drawnSpouses.Contains(pair))
-                    {
-                        Point pos1 = positions[personId];
-                        Point pos2 = positions[person.Spouse.Value];
-
-                        double y = pos1.Y + CardHeight / 2;
-                        double x1 = pos1.X + CardWidth;
-                        double x2 = pos2.X;
-
-                        // Horizontal line connecting spouses
-                        Line spouseLine = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y,
-                            X2 = x2,
-                            Y2 = y,
-                            Stroke = new SolidColorBrush(Color.FromRgb(244, 67, 54)),
-                            StrokeThickness = 3
-                        };
-                        TreeCanvas.Children.Add(spouseLine);
-
-                        // Draw vertical line down from center of spouse line
-                        if (person.Children.Count > 0)
-                        {
-                            double centerX = (x1 + x2) / 2;
-                            double verticalLineLength = VerticalSpacing / 2;
-
-                            Line verticalLine = new Line
-                            {
-                                X1 = centerX,
-                                Y1 = y,
-                                X2 = centerX,
-                                Y2 = y + verticalLineLength,
-                                Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                                StrokeThickness = 2
-                            };
-                            TreeCanvas.Children.Add(verticalLine);
-
-                            // Draw horizontal line connecting to all children
-                            var childrenInTree = person.Children.Where(cId => positions.ContainsKey(cId)).ToList();
-                            if (childrenInTree.Count > 0)
-                            {
-                                double leftMostChildX = positions[childrenInTree[0]].X + CardWidth / 2;
-                                double rightMostChildX = positions[childrenInTree[childrenInTree.Count - 1]].X + CardWidth / 2;
-
-                                Line horizontalLine = new Line
-                                {
-                                    X1 = leftMostChildX,
-                                    Y1 = y + verticalLineLength,
-                                    X2 = rightMostChildX,
-                                    Y2 = y + verticalLineLength,
-                                    Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                                    StrokeThickness = 2
-                                };
-                                TreeCanvas.Children.Add(horizontalLine);
-
-                                // Draw vertical lines down to each child
-                                foreach (int childId in childrenInTree)
-                                {
-                                    Point childPos = positions[childId];
-                                    double childCenterX = childPos.X + CardWidth / 2;
-
-                                    Line childLine = new Line
-                                    {
-                                        X1 = childCenterX,
-                                        Y1 = y + verticalLineLength,
-                                        X2 = childCenterX,
-                                        Y2 = childPos.Y,
-                                        Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                                        StrokeThickness = 2
-                                    };
-                                    TreeCanvas.Children.Add(childLine);
-                                }
-                            }
-                        }
-
-                        drawnSpouses.Add(pair);
-                    }
-                }
-                else if (person.Children.Count > 0)
+                    X1 = parentCenterX,
+                    Y1 = spouseLineY,
+                    X2 = parentCenterX,
+                    Y2 = startY + verticalLineLength,
+                    Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
+                    StrokeThickness = 2
+                };
+                TreeCanvas.Children.Add(verticalLineToSpouse);
+            }
+            else
+            {
+                Line verticalLine = new Line
                 {
-                    // Single parent with children
-                    Point parentPos = positions[personId];
-                    double parentCenterX = parentPos.X + CardWidth / 2;
-                    double parentBottomY = parentPos.Y + CardHeight;
-                    double verticalLineLength = VerticalSpacing / 2;
+                    X1 = parentCenterX,
+                    Y1 = startY,
+                    X2 = parentCenterX,
+                    Y2 = startY + verticalLineLength,
+                    Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
+                    StrokeThickness = 2
+                };
+                TreeCanvas.Children.Add(verticalLine);
+            }
 
-                    // Vertical line down from parent
-                    Line verticalLine = new Line
-                    {
-                        X1 = parentCenterX,
-                        Y1 = parentBottomY,
-                        X2 = parentCenterX,
-                        Y2 = parentBottomY + verticalLineLength,
-                        Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                        StrokeThickness = 2
-                    };
-                    TreeCanvas.Children.Add(verticalLine);
+            double leftChildX = positions[children[0]].X + CardWidth / 2;
+            double rightChildX = positions[children[children.Count - 1]].X + CardWidth / 2;
 
-                    var childrenInTree = person.Children.Where(cId => positions.ContainsKey(cId)).ToList();
-                    if (childrenInTree.Count > 0)
-                    {
-                        double leftMostChildX = positions[childrenInTree[0]].X + CardWidth / 2;
-                        double rightMostChildX = positions[childrenInTree[childrenInTree.Count - 1]].X + CardWidth / 2;
+            Line horizontalLine = new Line
+            {
+                X1 = leftChildX,
+                Y1 = startY + verticalLineLength,
+                X2 = rightChildX,
+                Y2 = startY + verticalLineLength,
+                Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
+                StrokeThickness = 2
+            };
+            TreeCanvas.Children.Add(horizontalLine);
 
-                        // Horizontal line connecting all children
-                        Line horizontalLine = new Line
-                        {
-                            X1 = leftMostChildX,
-                            Y1 = parentBottomY + verticalLineLength,
-                            X2 = rightMostChildX,
-                            Y2 = parentBottomY + verticalLineLength,
-                            Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                            StrokeThickness = 2
-                        };
-                        TreeCanvas.Children.Add(horizontalLine);
+            foreach (int childId in children)
+            {
+                Point childPos = positions[childId];
+                double childCenterX = childPos.X + CardWidth / 2;
 
-                        // Vertical lines to each child
-                        foreach (int childId in childrenInTree)
-                        {
-                            Point childPos = positions[childId];
-                            double childCenterX = childPos.X + CardWidth / 2;
-
-                            Line childLine = new Line
-                            {
-                                X1 = childCenterX,
-                                Y1 = parentBottomY + verticalLineLength,
-                                X2 = childCenterX,
-                                Y2 = childPos.Y,
-                                Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
-                                StrokeThickness = 2
-                            };
-                            TreeCanvas.Children.Add(childLine);
-                        }
-                    }
-                }
+                Line childLine = new Line
+                {
+                    X1 = childCenterX,
+                    Y1 = startY + verticalLineLength,
+                    X2 = childCenterX,
+                    Y2 = childPos.Y,
+                    Stroke = new SolidColorBrush(Color.FromRgb(158, 158, 158)),
+                    StrokeThickness = 2
+                };
+                TreeCanvas.Children.Add(childLine);
             }
         }
 
@@ -625,27 +655,21 @@ namespace WpfApp1
                 if (person == null)
                     continue;
 
-                // Create card border
                 Border card = new Border
                 {
                     Width = CardWidth,
                     Height = CardHeight,
-                    Style = person.Gender
-                        ? (Style)FindResource("MaleCardStyle")
-                        : (Style)FindResource("FemaleCardStyle"),
-                    Cursor = System.Windows.Input.Cursors.Hand
+                    Style = person.Gender ? (Style)FindResource("MaleCardStyle") : (Style)FindResource("FemaleCardStyle"),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = personId
                 };
 
-                // Add click event to card
-                card.Tag = personId;
                 card.MouseDown += Card_MouseDown;
 
-                // Create card content
                 Grid cardContent = new Grid();
                 cardContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 cardContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-                // Profile picture or icon
                 Border imageBorder = new Border
                 {
                     Width = 60,
@@ -691,11 +715,7 @@ namespace WpfApp1
                 Grid.SetRow(imageBorder, 0);
                 cardContent.Children.Add(imageBorder);
 
-                // Person info
-                StackPanel info = new StackPanel
-                {
-                    Margin = new Thickness(5, 0, 5, 5)
-                };
+                StackPanel info = new StackPanel { Margin = new Thickness(5, 0, 5, 5) };
 
                 TextBlock nameText = new TextBlock
                 {
@@ -709,13 +729,12 @@ namespace WpfApp1
 
                 TextBlock birthText = new TextBlock
                 {
-                    Text = person.BirthDate.ToString("yyyy-MM-dd"),
+                    Text = person.BirthDate.ToString("dd-MM-yyyy"),
                     FontSize = 10,
                     Foreground = Brushes.Gray,
                     TextAlignment = TextAlignment.Center
                 };
 
-                // Highlight root person
                 if (personId == rootPersonId)
                 {
                     card.BorderThickness = new Thickness(4);
@@ -730,7 +749,6 @@ namespace WpfApp1
 
                 card.Child = cardContent;
 
-                // Position on canvas
                 Canvas.SetLeft(card, position.X);
                 Canvas.SetTop(card, position.Y);
 
@@ -738,19 +756,16 @@ namespace WpfApp1
             }
         }
 
-        private void Card_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Card_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border card && card.Tag is int personId)
             {
-                if (e.ClickCount == 2)
+                if (rootPersonId == personId)
                 {
-                    // Double click - open profile
                     NavigationService?.Navigate(new Profile(personId));
-                    e.Handled = true;
                 }
-                else if (e.ClickCount == 1)
+                else
                 {
-                    // Single click - re-center tree on this person
                     NavigationService?.Navigate(new Tree(personId));
                 }
             }
