@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -104,7 +105,7 @@ namespace WpfApp1
             AdjustCanvasSize(positions);
         }
 
-        private List<List<int>> BuildGenerationsList(int startPersonId)
+        /*private List<List<int>> BuildGenerationsList(int startPersonId)
         {
             var generations = new List<List<int>>();
             var currentPerson = FamilyTree.GetPerson(startPersonId);
@@ -143,9 +144,86 @@ namespace WpfApp1
             AddDescendants(startPersonId, generations);
 
             return generations;
+        }*/
+
+        private List<List<int>> BuildGenerationsList(int personId)
+        {
+            var generations = new List<List<int>>();
+            var person = FamilyTree.GetPerson(personId);
+            if (person == null) return generations;
+
+            //Get Ancestors
+            int? current = personId;
+            while (current != null)
+            {
+                person = FamilyTree.GetPerson(current.Value);
+                int? parent = person.Dad.HasValue ? person.Dad : person.Mom;
+                if (parent.HasValue)
+                {
+                    List<int> Gen = GetSiblingsWithSpouses(parent.Value);
+                    if (Gen.Count > 0) generations.Insert(0, Gen);
+                }
+                else 
+                { 
+                    if (person.Spouse.HasValue) generations.Insert(0, new List<int> { current.Value, person.Spouse.Value });
+                    else generations.Insert(0, new List<int> { current.Value });
+				}
+				current = parent;
+            }
+
+            //Get Descendants
+            TraverseDown(new List<int> { personId }, generations);
+
+            //Update Generation
+            for (int i=0; i<generations.Count; i++)
+            {
+                var generation = generations[i];
+                foreach (var id in generation) FamilyTree.dynamicGen(id, i);
+            }
+
+            return generations;
+        }
+        private List<int> GetSiblingsWithSpouses(int personId)
+        {
+            var siblings = new List<int>();
+            var person = FamilyTree.GetPerson(personId);
+            if (person==null) return siblings;
+
+            foreach (int child in person.Children)
+            {
+                siblings.Add(child);
+                var c = FamilyTree.GetPerson(child);
+                if (c.Spouse.HasValue)
+                {
+                    siblings.Add(c.Spouse.Value);
+                }
+            }
+            return siblings;
         }
 
-        private List<int> GetSiblingsWithSpouses(int personId)
+        private void TraverseDown(List<int> currentGen, List<List<int>> generations)
+        {
+			var newGen = new List<int>();
+			foreach (int parent in  currentGen)
+            {
+                var person = FamilyTree.GetPerson(parent);
+                foreach (var child in person.Children)
+                {
+                    if (!newGen.Contains(child))
+                    {
+                        newGen.Add(child);
+                        var c = FamilyTree.GetPerson(child);
+                        if (c.Spouse.HasValue) newGen.Add(c.Spouse.Value);
+                    }
+                }
+            }
+            if (newGen.Count>0)
+            {
+				generations.Add(newGen);
+                TraverseDown(newGen, generations);
+			}
+        }
+        /*private List<int> GetSiblingsWithSpouses(int personId)
         {
             var result = new List<int>();
             Person person = FamilyTree.GetPerson(personId);
@@ -204,7 +282,7 @@ namespace WpfApp1
             }
 
             return result;
-        }
+        }*/
 
         private void AddDescendants(int personId, List<List<int>> generations)
         {

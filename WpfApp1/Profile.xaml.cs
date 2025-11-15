@@ -23,7 +23,6 @@ namespace WpfApp1
 
         private void Profile_Loaded(object sender, RoutedEventArgs e)
         {
-            FamilyTree.Load();
             LoadPersonData();
         }
 
