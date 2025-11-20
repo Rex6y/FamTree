@@ -713,5 +713,14 @@ namespace WpfApp1
 			};
 			return item;
 		}
+		private void RadioButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+		{
+			RadioButton rb = sender as RadioButton;
+			if (rb.IsChecked == true)
+			{
+				rb.IsChecked = false;
+				e.Handled = true;
+			}
+		}
 	}
 }
