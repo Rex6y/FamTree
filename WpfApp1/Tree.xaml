@@ -50,14 +50,14 @@
                     BorderThickness="0"
                     Cursor="Hand"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock x:Name="RootPersonText" Text="Loading..." VerticalAlignment="Center" 
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<TextBlock x:Name="RootPersonText" Text="Loading..." VerticalAlignment="Center" 
                                FontWeight="SemiBold" FontSize="16" Margin="0,0,20,0"/>
-                    <Button x:Name="ZoomInButton" Content="+" Margin="10,0,0,0" Padding="15,5" Click="ZoomIn_Click"
+					<Button x:Name="ZoomInButton" Content="+" Margin="10,0,0,0" Padding="15,5" Click="ZoomIn_Click"
                             Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
-                    <Button x:Name="ZoomOutButton" Content="-" Margin="5,0,0,0" Padding="15,5" Click="ZoomOut_Click"
+					<Button x:Name="ZoomOutButton" Content="-" Margin="5,0,0,0" Padding="15,5" Click="ZoomOut_Click"
                             Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
-                    <Button x:Name="ResetZoomButton" Content="Reset" Margin="5,0,0,0" Padding="15,5" Click="ResetZoom_Click"
+					<Button x:Name="ResetZoomButton" Content="Reset" Margin="5,0,0,0" Padding="15,5" Click="ResetZoom_Click"
                             Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand"/>
 					<Button x:Name="CalcBloodDiff" Margin="5,0,0,0" Padding="15,5" Click="CalcDis"
                             Background="#eb5e34" Foreground="White" BorderThickness="0" Cursor="Hand">
@@ -67,8 +67,18 @@
 					</Button>
 					<TextBlock x:Name="DistanceText" Text="Khoảng cách:" VerticalAlignment="Center" 
                     FontWeight="SemiBold" FontSize="16" Margin="20,0,20,0" Visibility="Collapsed"/>
-                </StackPanel>
-            </Grid>
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+					<Button x:Name="Filter" 
+                    Content="🔍" 
+                    FontSize="20"
+                    Click="FilterOption"
+                    Padding="10,5"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"/>
+				</StackPanel>
+			</Grid>
         </Border>
 
         <!-- Scrollable Canvas Area -->
@@ -78,5 +88,52 @@
                 <!-- Tree will be drawn here -->
             </Canvas>
         </ScrollViewer>
+		<StackPanel x:Name="SearchPanel" Grid.Row="1" HorizontalAlignment="Right" Background="#f0f0f0" Width="500" Focusable="True" KeyDown="SearchPanel_KeyDown"
+					Visibility="Collapsed">
+			
+			<StackPanel Margin="0,5">
+				<TextBlock Text="Họ và tên" FontWeight="Heavy" FontSize="14" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+				<TextBox x:Name="FullName"
+                         FontSize="14" 
+                         Padding="8"
+                         BorderBrush="#CCCCCC"
+                         BorderThickness="1"
+						 MaxWidth="300"/>
+			</StackPanel>
+			
+			<StackPanel Margin="0,5" HorizontalAlignment="Center">
+					<TextBlock Text="Giới tính" FontWeight="Heavy" FontSize="14" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+					<StackPanel Orientation="Horizontal">
+					    <RadioButton x:Name="GenderMale" 
+                         Content="Nam" 
+                         FontWeight="Bold"
+                         GroupName="Gender"
+                         Margin="0,0,20,0"
+                         VerticalContentAlignment="Center"/>
+					    <RadioButton x:Name="GenderFemale" 
+                         Content="Nữ" 
+                         FontWeight="Bold"
+                         GroupName="Gender"
+                         VerticalContentAlignment="Center"/>
+					</StackPanel>
+			</StackPanel>
+
+			<StackPanel Margin="0,5" HorizontalAlignment="Center">
+				    <TextBlock Text="Thế hệ" FontWeight="Heavy" FontSize="14" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+				    <ComboBox x:Name="genBox" Width="100"></ComboBox>
+			</StackPanel>
+			<ScrollViewer VerticalScrollBarVisibility="Auto" Width="500">
+				<StackPanel x:Name="SearchResultsPanel" Margin="10">
+					<TextBlock x:Name="NoResultsText"
+                                   Text="Enter để tìm kiếm..."
+                                   FontWeight="Bold"
+                                   Foreground="#999999"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,0,0"/>
+				</StackPanel>
+			</ScrollViewer>
+		</StackPanel>
     </Grid>
 </Page>

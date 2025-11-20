@@ -28,6 +28,8 @@ namespace WpfApp1
         bool calcMode = false;
         int select1 = -1;
         int select2 = -1;
+
+        bool search = false;
         public Tree(int userId, double? zoom = null)
         {
             InitializeComponent();
@@ -597,7 +599,8 @@ namespace WpfApp1
                 calcMode = true;
                 DistanceText.Visibility = Visibility.Visible;
                 updateDis();
-            }
+                CalcBloodDiff.Background = new SolidColorBrush(Color.FromRgb(166, 66, 36));
+			}
             else
             {
 				DistanceText.Visibility = Visibility.Collapsed;
@@ -611,6 +614,7 @@ namespace WpfApp1
 				}
                 select1 = select2 = -1;
                 calcMode = false;
+				CalcBloodDiff.Background = new SolidColorBrush(Color.FromRgb(235, 94, 52));
 			}
 		}
         private void resetBorder(int id)
@@ -640,6 +644,74 @@ namespace WpfApp1
 				var card = TreeCanvas.Children.OfType<Border>().FirstOrDefault(c => (int)c.Tag == select2);
 				card.BorderBrush = new SolidColorBrush(Color.FromRgb(52, 235, 171));
 			}
+		}
+
+		private void FilterOption(object sender, RoutedEventArgs e)
+		{
+            if (search == false)
+            {
+                search = true;
+                SearchPanel.Visibility = Visibility.Visible;
+                genBox.Items.Clear();
+                for (int i = 0; i<gens.Count; i++) genBox.Items.Add(i);
+            }
+            else
+            {
+                search = false;
+                SearchPanel.Visibility = Visibility.Collapsed;
+            }
+		}
+
+		private void SearchPanel_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Enter)
+				RunSearch();
+		}
+		private void RunSearch()
+		{
+			string query = FullName.Text.Trim();
+            bool? gender = GenderMale.IsChecked == true ? true : GenderFemale.IsChecked == true ? false : null; 
+            int? genSel = genBox.SelectedItem != null ? (int)genBox.SelectedItem : null;
+
+			var allIds = gens.SelectMany(g => g).ToList();
+			var results = allIds
+	        .Where(id =>
+	        {
+		    var p = FamilyTree.GetPerson(id);
+		    return (string.IsNullOrEmpty(query) || p.Name.Contains(query, StringComparison.OrdinalIgnoreCase)) &&
+			   (gender == null || p.Gender == gender.Value) &&
+			   (genSel == null || p.Generation == genSel.Value);
+	        }).ToList();
+
+			SearchResultsPanel.Children.Clear();
+			if (results.Count == 0)
+			{
+				SearchResultsPanel.Children.Add(new TextBlock
+				{
+					Text = "Không tìm thấy kết quả nào.",
+					FontSize = 14,
+					Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+					HorizontalAlignment = HorizontalAlignment.Center,
+					Margin = new Thickness(0, 0, 0, 0)
+				});
+				return;
+			}
+
+			foreach (var r in results)
+			{
+				var item = CreateSearchResultItem(r, FamilyTree.GetPerson(r));
+				SearchResultsPanel.Children.Add(item);
+			}
+		}
+
+		private UIElement CreateSearchResultItem(int id, Person p)
+		{
+			var item = new SearchResultItem(id, p);
+			item.ItemClicked += (s, personId) =>
+			{
+				NavigationService.Navigate(new Tree(personId));
+			};
+			return item;
 		}
 	}
 }
