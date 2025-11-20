@@ -59,6 +59,14 @@
                             Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
                     <Button x:Name="ResetZoomButton" Content="Reset" Margin="5,0,0,0" Padding="15,5" Click="ResetZoom_Click"
                             Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+					<Button x:Name="CalcBloodDiff" Margin="5,0,0,0" Padding="15,5" Click="CalcDis"
+                            Background="#eb5e34" Foreground="White" BorderThickness="0" Cursor="Hand">
+						<TextBlock TextAlignment="Center">
+                        Bloodline<LineBreak/>Distance
+						</TextBlock>
+					</Button>
+					<TextBlock x:Name="DistanceText" Text="Khoảng cách:" VerticalAlignment="Center" 
+                    FontWeight="SemiBold" FontSize="16" Margin="20,0,20,0" Visibility="Collapsed"/>
                 </StackPanel>
             </Grid>
         </Border>

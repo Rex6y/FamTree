@@ -208,6 +208,10 @@ static class FamilyTree
             {
                 Tree[child].Mom = Tree[id].Spouse.Value;
                 combineChildren(id, Tree[id].Spouse.Value);
+            } else if (Tree[child].Mom.HasValue)
+            {
+                Tree[id].Spouse = Tree[child].Mom.Value;
+                combineChildren(id, Tree[child].Mom.Value);
             }
         }
         else
@@ -217,7 +221,11 @@ static class FamilyTree
             {
                 Tree[child].Dad = Tree[id].Spouse.Value;
                 combineChildren(id, Tree[id].Spouse.Value);
-            }
+            } else if (Tree[child].Dad.HasValue)
+            {
+				Tree[id].Spouse = Tree[child].Dad.Value;
+				combineChildren(id, Tree[child].Dad.Value);
+			}
         }
         Save();
         return 0;
@@ -232,4 +240,58 @@ static class FamilyTree
     {
         Tree[id].Generation = gen;
     }
+
+    public static int siblingsCount(int id)
+    {
+        if (Tree[id].Dad.HasValue) return Tree[Tree[id].Dad.Value].Children.Count;
+        else if (Tree[id].Mom.HasValue) return Tree[Tree[id].Mom.Value].Children.Count;
+        else return 0;
+	}
+
+    public static void deleteParents(int id)
+    {
+        int? dad = Tree[id].Dad;
+        int? mom = Tree[id].Mom;
+        Tree[id].Dad = null;
+        Tree[id].Mom = null;
+        if (dad.HasValue)
+        {
+            Tree[dad.Value].Children.Remove(id);
+        }
+        if (mom.HasValue)
+        {
+            Tree[mom.Value].Children.Remove(id);
+        }
+        Save();
+    }
+
+    public static void deleteChildren(int id, int child)
+    {
+        Tree[id].Children.Remove(child);
+        if (Tree[id].Spouse.HasValue) Tree[Tree[id].Spouse.Value].Children.Remove(child);
+        Tree[child].Dad = null;
+        Tree[child].Mom = null;
+        Save();
+    }
+
+	public static List<int> getRelated(int personId)
+	{
+		var related = new List<int>();
+		getRelatedRecursive(personId, related);
+		return related.Distinct().ToList();
+	}
+
+	private static void getRelatedRecursive(int personId, List<int> related)
+	{
+		if (!Tree.ContainsKey(personId) || related.Contains(personId)) return;
+
+		related.Add(personId);
+		var p = Tree[personId];
+
+		if (p.Dad.HasValue) getRelatedRecursive(p.Dad.Value, related);
+		if (p.Mom.HasValue) getRelatedRecursive(p.Mom.Value, related);
+		if (p.Spouse.HasValue) getRelatedRecursive(p.Spouse.Value, related);
+		foreach (int c in p.Children) getRelatedRecursive(c, related);
+	}
+
 }

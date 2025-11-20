@@ -96,6 +96,8 @@
                             <TextBlock x:Name="DadText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
                             <Button x:Name="SetDadButton" Grid.Column="2" Content="Set Father" Padding="10,5" 
                                     Click="SetDad_Click" Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+							<Button x:Name="DeleteDad" Grid.Column="2" Content="Delete" Padding="10,5" 
+                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed"/>
                         </Grid>
 
                         <!-- Mother -->
@@ -109,6 +111,8 @@
                             <TextBlock x:Name="MomText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
                             <Button x:Name="SetMomButton" Grid.Column="2" Content="Set Mother" Padding="10,5" 
                                     Click="SetMom_Click" Background="#E91E63" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+							<Button x:Name="DeleteMom" Grid.Column="2" Content="Delete" Padding="10,5" 
+                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed"/>
                         </Grid>
 
                         <!-- Spouse -->
@@ -122,6 +126,7 @@
                             <TextBlock x:Name="SpouseText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
                             <Button x:Name="SetSpouseButton" Grid.Column="2" Content="Set Spouse" Padding="10,5" 
                                     Click="SetSpouse_Click" Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+							
                         </Grid>
 
                         <!-- Children -->

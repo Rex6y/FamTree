@@ -22,21 +22,23 @@ namespace WpfApp1
     {
         public int? SelectedPersonId { get; private set; }
 
-        public WindowSelector(bool? genderFilter, int id)
+        public WindowSelector(bool? genderFilter, int id, int mode)
         {
             InitializeComponent();
-            LoadPeople(genderFilter, id);
+            LoadPeople(genderFilter, id, mode);
         }
 
-        private void LoadPeople(bool? genderFilter, int personid)
+        private void LoadPeople(bool? genderFilter, int personid, int mode)
         {
             var allPeople = FamilyTree.SearchByName("");
-            allPeople.RemoveAll(x => x.id == personid);
-            if (genderFilter.HasValue)
+            var related = FamilyTree.getRelated(personid);
+			allPeople.RemoveAll(x => related.Contains(x.id));
+            if (mode==2) allPeople.RemoveAll(x => x.person.Dad.HasValue); // get fatherless
+            else if (mode==3) allPeople.RemoveAll(x => x.person.Mom.HasValue); // get motherless
+			if (genderFilter.HasValue)
             {
                 allPeople = allPeople.Where(p => p.person.Gender == genderFilter.Value).ToList();
             }
-
             foreach (var (id, person) in allPeople.OrderBy(p => p.person.Name))
             {
                 var item = new ListBoxItem
@@ -48,7 +50,7 @@ namespace WpfApp1
             }
         }
 
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+		private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string query = SearchBox.Text.ToLower();
 

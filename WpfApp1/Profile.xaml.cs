@@ -50,21 +50,29 @@ namespace WpfApp1
             {
                 Person dad = FamilyTree.GetPerson(person.Dad.Value);
                 DadText.Text = dad != null ? dad.Name : "Unknown";
-            }
+				SetDadButton.Visibility = Visibility.Collapsed;
+                DeleteDad.Visibility = Visibility.Visible;
+			}
             else
             {
                 DadText.Text = "Not set";
-            }
+				SetDadButton.Visibility = Visibility.Visible;
+				DeleteDad.Visibility = Visibility.Collapsed;
+			}
 
             if (person.Mom.HasValue)
             {
                 Person mom = FamilyTree.GetPerson(person.Mom.Value);
                 MomText.Text = mom != null ? mom.Name : "Unknown";
-            }
+				SetMomButton.Visibility = Visibility.Collapsed;
+				DeleteMom.Visibility = Visibility.Visible;
+			}
             else
             {
                 MomText.Text = "Not set";
-            }
+				SetMomButton.Visibility = Visibility.Visible;
+				DeleteMom.Visibility = Visibility.Collapsed;
+			}
 
             if (person.Spouse.HasValue)
             {
@@ -113,28 +121,146 @@ namespace WpfApp1
                 ProfileInitial.Visibility = Visibility.Visible;
             }
         }
+		private void LoadChildren(Person person)
+		{
+			ChildrenListBox.Items.Clear();
+			foreach (int childId in person.Children)
+			{
+				Person child = FamilyTree.GetPerson(childId);
+				if (child != null)
+				{
+					// Create main grid for the child item
+					var grid = new Grid
+					{
+						Margin = new Thickness(5)
+					};
+					grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Profile pic
+					grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Name
+					grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Delete button
 
-        private void LoadChildren(Person person)
-        {
-            ChildrenListBox.Items.Clear();
-            foreach (int childId in person.Children)
-            {
-                Person child = FamilyTree.GetPerson(childId);
-                if (child != null)
-                {
-                    var item = new ListBoxItem
-                    {
-                        Content = child.Name,
-                        Tag = childId,
-                        Cursor = System.Windows.Input.Cursors.Hand
-                    };
-                    item.MouseDoubleClick += ChildItem_DoubleClick;
-                    ChildrenListBox.Items.Add(item);
-                }
-            }
-        }
+					// Profile picture
+					var pfpBorder = new Border
+					{
+						Width = 40,
+						Height = 40,
+						CornerRadius = new CornerRadius(20),
+						Background = new SolidColorBrush(child.Gender
+							? Color.FromRgb(33, 150, 243)
+							: Color.FromRgb(233, 30, 99)),
+						Margin = new Thickness(0, 0, 10, 0),
+						VerticalAlignment = VerticalAlignment.Center
+					};
 
-        private void ChildItem_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+					if (child.Pfp != null && child.Pfp.Length > 0)
+					{
+						try
+						{
+							BitmapImage bitmap = new BitmapImage();
+							bitmap.BeginInit();
+							bitmap.StreamSource = new MemoryStream(child.Pfp);
+							bitmap.EndInit();
+
+							pfpBorder.Background = new ImageBrush
+							{
+								ImageSource = bitmap,
+								Stretch = Stretch.UniformToFill
+							};
+						}
+						catch
+						{
+							var initial = new TextBlock
+							{
+								Text = child.Name.Length > 0 ? child.Name[0].ToString().ToUpper() : "?",
+								FontSize = 18,
+								FontWeight = FontWeights.Bold,
+								Foreground = Brushes.White,
+								HorizontalAlignment = HorizontalAlignment.Center,
+								VerticalAlignment = VerticalAlignment.Center
+							};
+							pfpBorder.Child = initial;
+						}
+					}
+					else
+					{
+						var initial = new TextBlock
+						{
+							Text = child.Name.Length > 0 ? child.Name[0].ToString().ToUpper() : "?",
+							FontSize = 18,
+							FontWeight = FontWeights.Bold,
+							Foreground = Brushes.White,
+							HorizontalAlignment = HorizontalAlignment.Center,
+							VerticalAlignment = VerticalAlignment.Center
+						};
+						pfpBorder.Child = initial;
+					}
+
+					Grid.SetColumn(pfpBorder, 0);
+					grid.Children.Add(pfpBorder);
+
+					// Child name (just text, no button)
+					var nameText = new TextBlock
+					{
+						Text = child.Name,
+						FontSize = 14,
+						VerticalAlignment = VerticalAlignment.Center,
+						Margin = new Thickness(0, 0, 10, 0)
+					};
+					Grid.SetColumn(nameText, 1);
+					grid.Children.Add(nameText);
+
+					// Delete button (right-aligned)
+					var deleteButton = new Button
+					{
+						Content = "✕",
+						Width = 30,
+						Height = 30,
+						Background = new SolidColorBrush(Color.FromRgb(244, 67, 54)),
+						Foreground = Brushes.White,
+						BorderThickness = new Thickness(0),
+						Cursor = System.Windows.Input.Cursors.Hand,
+						Tag = childId,
+						FontWeight = FontWeights.Bold,
+						FontSize = 16,
+						VerticalAlignment = VerticalAlignment.Center
+					};
+					deleteButton.Click += DeleteChild_Click;
+					Grid.SetColumn(deleteButton, 2);
+					grid.Children.Add(deleteButton);
+
+					// Create ListBoxItem with double-click handler
+					var item = new ListBoxItem
+					{
+						Content = grid,
+						Tag = childId,
+						Cursor = System.Windows.Input.Cursors.Hand
+					};
+					item.MouseDoubleClick += ChildItem_DoubleClick;
+
+					ChildrenListBox.Items.Add(item);
+				}
+			}
+		}
+		private void DeleteChild_Click(object sender, RoutedEventArgs e)
+		{
+			if (sender is Button button && button.Tag is int childId)
+			{
+				Person child = FamilyTree.GetPerson(childId);
+				var result = MessageBox.Show(
+					$"Remove {child.Name} as a child?",
+					"Confirm Remove",
+					MessageBoxButton.YesNo,
+					MessageBoxImage.Question
+				);
+
+				if (result == MessageBoxResult.Yes)
+				{
+					FamilyTree.deleteChildren(personId, childId);
+					LoadPersonData();
+					MessageBox.Show($"{child.Name} removed as child!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+			}
+		}
+		private void ChildItem_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (sender is ListBoxItem item && item.Tag is int childId)
             {
@@ -185,7 +311,7 @@ namespace WpfApp1
 
         private void SetDad_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(true, personId); // true = male only
+            var selector = new WindowSelector(true, personId, 1); // true = male only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int dadId = selector.SelectedPersonId.Value;
@@ -196,9 +322,9 @@ namespace WpfApp1
             }
         }
 
-        private void SetMom_Click(object sender, RoutedEventArgs e)
+		private void SetMom_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(false, personId); // false = female only
+            var selector = new WindowSelector(false, personId, 1); // false = female only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int momId = selector.SelectedPersonId.Value;
@@ -208,11 +334,31 @@ namespace WpfApp1
 
             }
         }
+		private void DeleteParents_Click(object sender, RoutedEventArgs e)
+		{
+			var result = MessageBox.Show(
+				"Are you sure you want to delete parents?",
+				"Confirm Delete",
+				MessageBoxButton.YesNo,
+				MessageBoxImage.Warning
+			);
+			if (result == MessageBoxResult.Yes)
+			{
+				FamilyTree.deleteParents(personId);
+				LoadPersonData();
+				MessageBox.Show("Parents deleted!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 
-        private void SetSpouse_Click(object sender, RoutedEventArgs e)
+		}
+		private void SetSpouse_Click(object sender, RoutedEventArgs e)
         {
-            Person person = FamilyTree.GetPerson(personId);
-            var selector = new WindowSelector(!person.Gender, personId); // opposite gender
+            var person = FamilyTree.GetPerson(personId);
+            if (person.Spouse != null)
+            {
+				MessageBox.Show("Already have spouse, can't add!", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+			}
+            var selector = new WindowSelector(!person.Gender, personId, 1); // opposite gender
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int spouseId = selector.SelectedPersonId.Value;
@@ -225,7 +371,9 @@ namespace WpfApp1
 
         private void AddChild_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(null, personId);
+            var person = FamilyTree.GetPerson(personId);
+            int mode = person.Gender ? 2 : 3;
+            var selector = new WindowSelector(null, personId, mode);
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int childId = selector.SelectedPersonId.Value;
