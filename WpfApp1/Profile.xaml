@@ -5,8 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:WpfApp1"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="Profile">
+      Title="Thông tin cá nhân">
 
     <Grid Background="#f5f5f5">
         <Grid.RowDefinitions>
@@ -14,29 +13,59 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="White" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="20">
+        <Border Grid.Row="0" Background="White" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="5">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="BackButton" 
-                Content="←" 
-                FontSize="30"
-                Click="BackButton_Click"
-                Padding="10,5"
-                Background="Transparent"
-                BorderThickness="0"
-                Cursor="Hand"/>
-                <TextBlock x:Name="PageTitle" Text="Person Profile" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                <Button x:Name="BackButton"
+                        Width="96"
+                        Height="40"
+                        Click="BackButton_Click"
+                        Cursor="Hand"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Margin="10,10,0,10">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <Border Name="borderx"
+                                        CornerRadius="20"
+                                        Background="#4fb04f"
+                                        BorderBrush="#FFFFFFFF"
+                                        BorderThickness="2">
+                                    <Grid>
+                                        <TextBlock Text="&#x276E;"
+                                                   FontSize="30"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   Margin="10,-2,0,0"/>
+                                        <TextBlock Text="Back"
+                                                   Foreground="White"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="30,0,20,0"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="borderx" Property="Background" Value="Black"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <TextBlock x:Name="PageTitle" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0,0,0"/>
             </StackPanel>
         </Border>
 
-        <!-- Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="30" MaxWidth="800">
-
-                <!-- Profile Picture Section -->
                 <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="Profile Picture" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Ảnh thành viên" FontSize="16" FontWeight="SemiBold" Margin="5,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -50,107 +79,227 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <Button x:Name="ChangePictureButton" Content="Change Picture" Padding="15,8" 
-                                        Click="ChangePicture_Click" Background="#4CAF50" Foreground="White" 
-                                        BorderThickness="0" Cursor="Hand" Margin="0,0,0,10"/>
-                                <Button x:Name="RemovePictureButton" Content="Remove Picture" Padding="15,8" 
-                                        Click="RemovePicture_Click" Background="#F44336" Foreground="White" 
-                                        BorderThickness="0" Cursor="Hand"/>
+                                <Button x:Name="ChangePictureButton" 
+                                        Content="Thay ảnh"  
+                                        Click="ChangePicture_Click"
+                                        Cursor="Hand" 
+                                        Height="40" 
+                                        FontSize="16"
+                                        Width="600" 
+                                        Margin="0,0,0,10"
+                                        Background="#4CAF50"
+                                        Foreground="White"
+                                        FontWeight="SemiBold"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border CornerRadius="15" 
+                                                    Background="{TemplateBinding Background}" 
+                                                    Padding="15,8">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                    VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <Button x:Name="RemovePictureButton" 
+                                        Content="Xóa ảnh"  
+                                        Click="RemovePicture_Click"
+                                        Cursor="Hand" 
+                                        Height="40" 
+                                        Width="600" 
+                                        FontSize="16"
+                                        Margin="0,0,0,10"
+                                        Background="Red"
+                                        Foreground="White"
+                                        FontWeight="SemiBold"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border CornerRadius="15" 
+                                                    Background="{TemplateBinding Background}" 
+                                                    Padding="15,8">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Basic Info Section -->
                 <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="Basic Information" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        <TextBlock Text="Thông tin cơ bản" FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Name:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="NameText" Text="" FontSize="14" Margin="0,0,0,15"/>
+                        <TextBlock Text="Họ và tên:" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="NameText" Text="" FontSize="16" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Gender:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="GenderText" Text="" FontSize="14" Margin="0,0,0,15"/>
+                        <TextBlock Text="Giới tính:" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="GenderText" Text="" FontSize="16" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Birth Date:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="BirthDateText" Text="" FontSize="14" Margin="0,0,0,15"/>
+                        <TextBlock Text="Ngày sinh:" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="BirthDateText" Text="" FontSize="16" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Generation:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="GenerationText" Text="" FontSize="14"/>
+                        <TextBlock Text="Thế hệ:" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="GenerationText" Text="" FontSize="16"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Family Relationships Section -->
                 <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
                     <StackPanel>
-                        <TextBlock Text="Family Relationships" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        <TextBlock Text="Quan hệ trong gia đình" FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
 
-                        <!-- Father -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Father:" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="DadText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
-                            <Button x:Name="SetDadButton" Grid.Column="2" Content="Set Father" Padding="10,5" 
-                                    Click="SetDad_Click" Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-							<Button x:Name="DeleteDad" Grid.Column="2" Content="Delete" Padding="10,5" 
-                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed"/>
+                            <TextBlock Grid.Column="0" Text="Bố:" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="DadText" Grid.Column="1" Text="Chưa đặt" FontSize="16" VerticalAlignment="Center"/>
+                            <Button x:Name="SetDadButton" Grid.Column="2" FontSize="16" Content="Thêm bố" Padding="10,5" Height="40" FontWeight="SemiBold"
+                                    Click="SetDad_Click" Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="15" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="15,8">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <Button x:Name="DeleteDad" Grid.Column="2" Content="Xóa" FontSize="12" Padding="10,5" Height="40" Width="50" FontWeight="SemiBold"
+                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="40" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="15,8">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
 
-                        <!-- Mother -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Mother:" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="MomText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
-                            <Button x:Name="SetMomButton" Grid.Column="2" Content="Set Mother" Padding="10,5" 
-                                    Click="SetMom_Click" Background="#E91E63" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-							<Button x:Name="DeleteMom" Grid.Column="2" Content="Delete" Padding="10,5" 
-                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed"/>
+                            <TextBlock Grid.Column="0" Text="Mẹ:" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="MomText" Grid.Column="1" Text="Chưa đặt" FontSize="16" VerticalAlignment="Center"/>
+                            <Button x:Name="SetMomButton" Grid.Column="2" Content="Thêm mẹ" Padding="10,5" Height="40" FontWeight="SemiBold"
+                                    Click="SetMom_Click" Background="#2196F3"  FontSize="16" Foreground="White" BorderThickness="0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="15" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="15,8">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <Button x:Name="DeleteMom" Grid.Column="2" Content="Xóa" FontSize="12" Padding="10,5" Height="40" Width="50" FontWeight="SemiBold"
+                                    Click="DeleteParents_Click" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand" Visibility="Collapsed">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="40" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="15,8">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
 
-                        <!-- Spouse -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Spouse:" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="SpouseText" Grid.Column="1" Text="Not set" FontSize="14" VerticalAlignment="Center"/>
-                            <Button x:Name="SetSpouseButton" Grid.Column="2" Content="Set Spouse" Padding="10,5" 
-                                    Click="SetSpouse_Click" Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-							
+                            <TextBlock Grid.Column="0" Text="Vợ/chồng:" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SpouseText" Grid.Column="1" Text="Chưa đặt" FontSize="16" VerticalAlignment="Center"/>
+                            <Button x:Name="SetSpouseButton" Grid.Column="2" Content="Thêm vợ/chồng" FontSize="16" Padding="10,5" Height="40" FontWeight="SemiBold"
+                                    Click="SetSpouse_Click" Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="15" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="15,8"> 
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                                VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
                         </Grid>
 
-                        <!-- Children -->
-                        <TextBlock Text="Children:" FontWeight="SemiBold" Margin="0,10,0,5"/>
-                        <ListBox x:Name="ChildrenListBox" MinHeight="80" MaxHeight="150" Margin="0,0,0,10"/>
-                        <Button x:Name="AddChildButton" Content="+ Add Child" Padding="10,5" 
+                        <TextBlock Text="Con:" FontSize="16" FontWeight="SemiBold" Margin="0,10,0,5"/>
+                        <ListBox x:Name="ChildrenListBox" MinHeight="50" MaxHeight="150" Margin="0,0,0,10"/>
+                        <Button x:Name="AddChildButton" Content="+ Thêm con" Padding="10,5" FontSize="16" FontWeight="SemiBold"
                                 Click="AddChild_Click" Background="#4CAF50" Foreground="White" 
-                                BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left"/>
+                                BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border CornerRadius="15" 
+                                            Background="{TemplateBinding Background}" 
+                                            Padding="15,8">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Border>
 
-                <!-- Actions Section -->
                 <Border Background="White" CornerRadius="10" Padding="20">
                     <StackPanel>
-                        <TextBlock Text="Actions" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
-                        <Button x:Name="ViewTreeButton" Content="View Family Tree" Padding="15,8" 
+                        <TextBlock Text="Thao tác khác" FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <Button x:Name="ViewTreeButton" Content="Xem cây gia phả" Padding="15,8" FontSize="16" FontWeight="SemiBold"
                                 Click="ViewTree_Click" Background="#673AB7" Foreground="White" 
-                                BorderThickness="0" Cursor="Hand" Margin="0,0,0,10"/>
-                        <Button x:Name="DeletePersonButton" Content="Delete Person" Padding="15,8" 
+                                BorderThickness="0" Cursor="Hand" Margin="0,0,0,10">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border CornerRadius="15" 
+                                            Background="{TemplateBinding Background}" 
+                                            Padding="15,8">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                         VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button x:Name="DeletePersonButton" Content="Xóa thành viên" Padding="15,8" FontSize="16" FontWeight="SemiBold"
                                 Click="DeletePerson_Click" Background="#F44336" Foreground="White" 
-                                BorderThickness="0" Cursor="Hand"/>
+                                BorderThickness="0" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border CornerRadius="15" 
+                                            Background="{TemplateBinding Background}" 
+                                            Padding="15,8">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Border>
-
             </StackPanel>
         </ScrollViewer>
     </Grid>

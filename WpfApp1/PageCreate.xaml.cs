@@ -25,10 +25,47 @@ namespace WpfApp1
         public PageCreate()
         {
             InitializeComponent();
+            LoadAllPersons();
         }
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new PageDefault());
+        }
+
+        private void LoadAllPersons()
+        {
+            SearchResultsPanel.Children.Clear();
+            
+            var allPersons = FamilyTree.GetAllPersons();
+
+            if (allPersons == null || allPersons.Count == 0)
+            {
+                SearchResultsPanel.Children.Add(new TextBlock
+                {
+                    Text = "Không có thành viên nào.",
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush(Color.FromRgb(153, 153, 153)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 50, 0, 0)
+                });
+                return;
+            }
+
+            foreach (var person in allPersons)
+            {
+                var item = CreateSearchResultItem(person.Id, person);
+                SearchResultsPanel.Children.Add(item);
+            }
+        }
+
+        private UIElement CreateSearchResultItem(int id, Person p)
+        {
+            var item = new SearchResultItem(id, p);
+            item.ItemClicked += (s, personId) =>
+            {
+                NavigationService.Navigate(new Tree(personId));
+            };
+            return item;
         }
         private void Pfp_click(object sender, MouseButtonEventArgs e)
         {

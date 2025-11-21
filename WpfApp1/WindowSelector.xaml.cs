@@ -80,5 +80,10 @@ namespace WpfApp1
             DialogResult = false;
             Close();
         }
+
+        private void PeopleListBox_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+
+        }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="WindowSelector" Height="450" Width="800">
+        Title="Chọn thành viên" Height="450" Width="800">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,11 +14,26 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Select a person:" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" 
+                   Text="Chọn một thành viên:" 
+                   FontSize="20" 
+                   FontWeight="Bold" 
+                   Margin="0,0,0,10"/>
 
-        <TextBox x:Name="SearchBox" Grid.Row="1" Padding="8" Margin="0,0,0,10" 
+        <TextBox x:Name="SearchBox" 
+                 Grid.Row="1" 
+                 Padding="8" 
+                 Margin="0,0,0,10" 
                  TextChanged="SearchBox_TextChanged"
-                 Text="" FontSize="14">
+                 Text="" 
+                 BorderBrush="Gray"
+                 BorderThickness="1"    
+                 FontSize="14">
+            <TextBox.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="8"/>
+                </Style>
+            </TextBox.Resources>
             <TextBox.Style>
                 <Style TargetType="TextBox">
                     <Style.Triggers>
@@ -27,7 +42,9 @@
                                 <Setter.Value>
                                     <VisualBrush Stretch="None" AlignmentX="Left">
                                         <VisualBrush.Visual>
-                                            <TextBlock Text="Search by name..." Foreground="Gray" Margin="5,0,0,0"/>
+                                            <TextBlock Text="Tìm kiếm theo tên..." 
+                                                      Foreground="Gray" 
+                                                      Margin="5,0,0,0"/>
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Setter.Value>
@@ -38,13 +55,43 @@
             </TextBox.Style>
         </TextBox>
 
-        <ListBox x:Name="PeopleListBox" Grid.Row="2" Margin="0,0,0,10"/>
+        <Border Grid.Row="2" 
+                CornerRadius="15" 
+                BorderThickness="2" 
+                BorderBrush="Gray" 
+                Margin="0,0,0,20" 
+                Background="Transparent" 
+                Padding="10">
+            <ListBox x:Name="PeopleListBox" 
+                     BorderThickness="0"
+                     FontSize="14"
+                     Background="Transparent"/>
+        </Border>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="SelectButton" Content="Select" Padding="20,8" Click="SelectButton_Click"
-                    Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-            <Button x:Name="CancelButton" Content="Cancel" Padding="20,8" Click="CancelButton_Click"
-                    Background="#757575" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+        <StackPanel Grid.Row="3" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right">
+            <Button x:Name="SelectButton" 
+                    Content="Chọn" 
+                    Padding="20,8" 
+                    Click="SelectButton_Click" 
+                    FontWeight="SemiBold" 
+                    FontSize="16"
+                    Background="#4CAF50" 
+                    Foreground="White" 
+                    BorderThickness="0" 
+                    Cursor="Hand" 
+                    Margin="0,0,10,0"/>
+            <Button x:Name="CancelButton" 
+                    Content="Hủy" 
+                    Padding="20,8" 
+                    Click="CancelButton_Click" 
+                    FontWeight="SemiBold" 
+                    FontSize="16"
+                    Background="#757575" 
+                    Foreground="White" 
+                    BorderThickness="0" 
+                    Cursor="Hand"/>
         </StackPanel>
     </Grid>
 </Window>

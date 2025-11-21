@@ -28,7 +28,6 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Avatar -->
             <Ellipse x:Name="AvatarEllipse"
                      Grid.Column="0" 
                      Width="50" 
@@ -36,7 +35,6 @@
                      Fill="#DDDDDD" 
                      Margin="5,-6,5,-6"/>
 
-            <!-- Thông tin người dùng -->
             <StackPanel Grid.Column="1" 
                        VerticalAlignment="Center" 
                        Margin="15,0,0,0">
@@ -52,7 +50,6 @@
                           Margin="0,3,0,0"/>
             </StackPanel>
 
-            <!-- Nút hành động -->
             <Button Grid.Column="2"
                    x:Name="ActionButton"
                    Content="Xem"

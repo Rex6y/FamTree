@@ -45,7 +45,7 @@ namespace WpfApp1
 
             if (rootPerson != null)
             {
-                RootPersonText.Text = $"Current: {rootPerson.Name}";
+                RootPersonText.Text = $"Đang xem: {rootPerson.Name}";
             }
 
             DrawTree();
@@ -94,7 +94,7 @@ namespace WpfApp1
             Person rootPerson = FamilyTree.GetPerson(rootPersonId);
             if (rootPerson == null)
             {
-                MessageBox.Show("Person not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Không tìm thấy!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -442,7 +442,7 @@ namespace WpfApp1
 
                 TextBlock birthText = new TextBlock
                 {
-                    Text = person.BirthDate.ToString("dd-MM-yyyy"),
+                    Text = person.BirthDate.ToString("dd/MM/yyyy"),
                     FontSize = 12,
                     Foreground = Brushes.Gray,
                     TextAlignment = TextAlignment.Center
@@ -450,7 +450,7 @@ namespace WpfApp1
 
 				TextBlock genText = new TextBlock
 				{
-					Text = $"Generation: {person.Generation}",
+					Text = $"Thế hệ: {person.Generation}",
 					FontSize = 12,
 					Foreground = Brushes.Gray,
 					TextAlignment = TextAlignment.Center
@@ -651,14 +651,14 @@ namespace WpfApp1
             if (search == false)
             {
                 search = true;
-                SearchPanel.Visibility = Visibility.Visible;
+                SearchPanelBorder.Visibility = Visibility.Visible;
                 genBox.Items.Clear();
                 for (int i = 0; i<gens.Count; i++) genBox.Items.Add(i);
             }
             else
             {
                 search = false;
-                SearchPanel.Visibility = Visibility.Collapsed;
+                SearchPanelBorder.Visibility = Visibility.Collapsed;
             }
 		}
 

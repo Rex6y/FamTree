@@ -8,7 +8,6 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Tree">
     <Page.Resources>
-        <!-- Person Card Template -->
         <Style x:Key="PersonCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#2196F3"/>
@@ -37,93 +36,295 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Top Control Panel -->
         <Border Grid.Row="0" Background="#f5f5f5" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="10">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button x:Name="BackButton" 
-                    Content="←" 
-                    FontSize="30"
-                    Click="BackButton_Click"
-                    Padding="10,5"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"/>
+                    <Button x:Name="BackButton"
+                            Width="96"
+                            Height="40"
+                            Click="BackButton_Click"
+                            Cursor="Hand"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Margin="10,10,0,10">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <Border Name="borderx"
+                                            CornerRadius="20"
+                                            Background="#4fb04f"
+                                            BorderBrush="#FFFFFFFF"
+                                            BorderThickness="2">
+                                        <Grid>
+                                        <TextBlock Text="&#x276E;"
+                                               FontSize="30"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               Margin="10,-2,0,0"/>
+                                        <TextBlock Text="Back"
+                                               Foreground="White"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="30,0,20,0"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="borderx" Property="Background" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </StackPanel>
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<TextBlock x:Name="RootPersonText" Text="Loading..." VerticalAlignment="Center" 
-                               FontWeight="SemiBold" FontSize="16" Margin="0,0,20,0"/>
-					<Button x:Name="ZoomInButton" Content="+" Margin="10,0,0,0" Padding="15,5" Click="ZoomIn_Click"
-                            Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
-					<Button x:Name="ZoomOutButton" Content="-" Margin="5,0,0,0" Padding="15,5" Click="ZoomOut_Click"
-                            Background="#2196F3" Foreground="White" BorderThickness="0" Cursor="Hand" FontSize="16" FontWeight="Bold"/>
-					<Button x:Name="ResetZoomButton" Content="Reset" Margin="5,0,0,0" Padding="15,5" Click="ResetZoom_Click"
-                            Background="#FF9800" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-					<Button x:Name="CalcBloodDiff" Margin="5,0,0,0" Padding="15,5" Click="CalcDis"
-                            Background="#eb5e34" Foreground="White" BorderThickness="0" Cursor="Hand">
-						<TextBlock TextAlignment="Center">
-                        Bloodline<LineBreak/>Distance
-						</TextBlock>
-					</Button>
-					<TextBlock x:Name="DistanceText" Text="Khoảng cách:" VerticalAlignment="Center" 
-                    FontWeight="SemiBold" FontSize="16" Margin="20,0,20,0" Visibility="Collapsed"/>
-				</StackPanel>
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-					<Button x:Name="Filter" 
-                    Content="🔍" 
-                    FontSize="20"
-                    Click="FilterOption"
-                    Padding="10,5"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"/>
-				</StackPanel>
-			</Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock x:Name="RootPersonText" 
+                               Text="Loading..." 
+                               VerticalAlignment="Center" 
+                               FontWeight="SemiBold" 
+                               FontSize="16" 
+                               Foreground="#333333"
+                               Margin="0,0,25,0"/>
+
+                    <Button x:Name="ZoomInButton" 
+                            Content="+" 
+                            Width="42"
+                            Height="42"
+                            FontSize="30"
+                            FontWeight="Bold"
+                            Cursor="Hand"
+                            Background="#2196F3"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="ZoomIn_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" Background="{TemplateBinding Background}" CornerRadius="21">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="ZoomOutButton" 
+                            Content="−" 
+                            Width="42"
+                            Height="42"
+                            FontSize="30"
+                            FontWeight="Bold"
+                            Cursor="Hand"
+                            Background="#2196F3"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Margin="8,0,0,0"
+                            Click="ZoomOut_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" Background="{TemplateBinding Background}" CornerRadius="21">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="ResetZoomButton" 
+                            Content="⟲" 
+                            Height="42"
+                            Width="42"
+                            Padding="18,10"
+                            FontSize="30"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Background="#FF9800"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Margin="12,0,0,0"
+                            Click="ResetZoom_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" Background="{TemplateBinding Background}" CornerRadius="21">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="CalcBloodDiff" 
+                            Height="42"
+                            Width="120"
+                            Padding="18,10"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Background="#E53935"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Margin="12,0,0,0"
+                            Click="CalcDis">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" Background="{TemplateBinding Background}" CornerRadius="10">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock TextAlignment="Center" LineHeight="16" Foreground="White">
+                            Khoảng cách<LineBreak/>huyết thống
+                        </TextBlock>
+                    </Button>
+
+                    <TextBlock x:Name="DistanceText" 
+                               Text="Khoảng cách:" 
+                               VerticalAlignment="Center" 
+                               FontWeight="SemiBold" 
+                               FontSize="15" 
+                               Foreground="#333333"
+                               Margin="20,0,0,0" 
+                               Visibility="Collapsed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="Filter" 
+                            Content="🔍" 
+                            Width="42"
+                            Height="42"
+                            FontSize="18"
+                            Cursor="Hand"
+                            Background="#607D8B"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="FilterOption">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" Background="{TemplateBinding Background}" CornerRadius="21">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- Scrollable Canvas Area -->
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                       x:Name="TreeScrollViewer" Background="#fafafa">
             <Canvas x:Name="TreeCanvas" Background="White">
-                <!-- Tree will be drawn here -->
             </Canvas>
         </ScrollViewer>
-		<Grid x:Name="SearchPanel" Grid.Row="1" HorizontalAlignment="Right" Background="#f0f0f0" Width="500" Focusable="True" KeyDown="SearchPanel_KeyDown"
-      Visibility="Collapsed">
+        <Border x:Name="SearchPanelBorder" Grid.Row="1" HorizontalAlignment="Right" Width="400" 
+                CornerRadius="12" 
+                BorderThickness="2" 
+                BorderBrush="Green" 
+                Background="White"
+                Visibility="Collapsed">
+            <Grid x:Name="SearchPanel" Focusable="True" KeyDown="SearchPanel_KeyDown">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="*"/>
-			</Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="20">
+                    <TextBlock Text="Họ và tên" FontWeight="Bold" FontSize="20" Margin="0,0,0,8" Foreground="#333"/>
+                    <TextBox x:Name="FullName" 
+                     Padding="10" 
+                     Margin="0,0,0,15"
+                     BorderBrush="#CCCCCC"
+                     BorderThickness="1"    
+                     FontSize="16">
+                        <TextBox.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                        </TextBox.Resources>
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <VisualBrush Stretch="None" AlignmentX="Left">
+                                                    <VisualBrush.Visual>
+                                                        <TextBlock Text="Nhập tên để tìm kiếm..." 
+                                                                   FontSize="14"
+                                                          Foreground="#999" 
+                                                          Margin="8,0,0,0"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
 
-			<StackPanel Grid.Row="0" Margin="0,5">
-				<TextBlock Text="Họ và tên" FontWeight="Heavy" FontSize="14" Margin="0,0,0,5" HorizontalAlignment="Center"/>
-				<TextBox x:Name="FullName" FontSize="14" Padding="8" BorderBrush="#CCCCCC" BorderThickness="1" MaxWidth="300"/>
+                    <TextBlock Text="Giới tính" FontWeight="Bold" FontSize="20" Margin="0,0,0,8" Foreground="#333"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                        <RadioButton x:Name="GenderMale" 
+                            PreviewMouseDown="RadioButton_PreviewMouseDown" 
+                            Content="Nam" 
+                            GroupName="Gender" FontSize="14" FontWeight="SemiBold"
+                            Margin="0,0,30,0"/>
+                        <RadioButton x:Name="GenderFemale" 
+                            PreviewMouseDown="RadioButton_PreviewMouseDown"  FontSize="14" FontWeight="SemiBold"
+                            Content="Nữ" 
+                            GroupName="Gender"/>
+                    </StackPanel>
 
-				<TextBlock Text="Giới tính" FontWeight="Heavy" FontSize="14" Margin="10,10,0,5" HorizontalAlignment="Center"/>
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-					<RadioButton x:Name="GenderMale" PreviewMouseDown="RadioButton_PreviewMouseDown" 
-								 Content="Nam" FontWeight="Bold" GroupName="Gender" Margin="0,0,20,0" VerticalContentAlignment="Center"/>
-					<RadioButton x:Name="GenderFemale" PreviewMouseDown="RadioButton_PreviewMouseDown" 
-								 Content="Nữ" FontWeight="Bold" GroupName="Gender" VerticalContentAlignment="Center"/>
-				</StackPanel>
+                    <TextBlock Text="Thế hệ" FontWeight="Bold" FontSize="20" Margin="0,0,0,8" Foreground="#333"/>
+                    <ComboBox x:Name="genBox" Height="35" Padding="8">
+                        <ComboBox.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </ComboBox.Resources>
+                    </ComboBox>
+                </StackPanel>
+                
+                <Border Grid.Row="1" BorderThickness="0,2,0,0" BorderBrush="#E0E0E0" Background="#FAFAFA" CornerRadius="0,0,12,12">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="SearchResultsPanel" Margin="20">
+                            <TextBlock x:Name="NoResultsText"
+                              Text="Nhấn Enter để tìm kiếm"
+                              Foreground="#999"
+                              FontSize="13"
+                              HorizontalAlignment="Center"
+                              Margin="0,20"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
 
-				<TextBlock Text="Thế hệ" FontWeight="Heavy" FontSize="14" Margin="10,10,0,5" HorizontalAlignment="Center"/>
-				<ComboBox x:Name="genBox" Width="100" HorizontalAlignment="Center"/>
-			</StackPanel>
-
-			<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="{Binding ActualHeight, ElementName=SearchPanel}">
-				<StackPanel x:Name="SearchResultsPanel" Margin="10">
-					<TextBlock x:Name="NoResultsText"
-                       Text="Enter để tìm kiếm..."
-                       FontWeight="Bold"
-                       Foreground="#999999"
-                       FontSize="14"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"/>
-				</StackPanel>
-			</ScrollViewer>
-		</Grid>
-
-	</Grid>
+    </Grid>
 </Page>

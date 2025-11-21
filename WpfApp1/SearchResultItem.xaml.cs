@@ -46,7 +46,6 @@ namespace WpfApp1
                 }
             }
 
-            // Gắn event cho button
             ActionButton.Click += ActionButton_Click;
         }
 

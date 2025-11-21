@@ -31,16 +31,16 @@ namespace WpfApp1
             Person person = FamilyTree.GetPerson(personId);
             if (person == null)
             {
-                MessageBox.Show("Person not found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Không tìm thấy!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             // Set basic info
-            PageTitle.Text = $"Profile: {person.Name}";
+            PageTitle.Text = $"Thông tin cá nhân: {person.Name}";
             NameText.Text = person.Name;
-            GenderText.Text = person.Gender ? "Male" : "Female";
-            BirthDateText.Text = person.BirthDate.ToString("MMMM dd, yyyy");
-            GenerationText.Text = $"Generation {person.Generation}";
+            GenderText.Text = person.Gender ? "Nam" : "Nữ";
+            BirthDateText.Text = person.BirthDate.ToString("dd/MM/yyyy");
+            GenerationText.Text = $"Thế hệ {person.Generation}";
 
             // Set profile picture
             LoadProfilePicture(person);
@@ -55,7 +55,7 @@ namespace WpfApp1
 			}
             else
             {
-                DadText.Text = "Not set";
+                DadText.Text = "Chưa đặt";
 				SetDadButton.Visibility = Visibility.Visible;
 				DeleteDad.Visibility = Visibility.Collapsed;
 			}
@@ -69,7 +69,7 @@ namespace WpfApp1
 			}
             else
             {
-                MomText.Text = "Not set";
+                MomText.Text = "Chưa đặt";
 				SetMomButton.Visibility = Visibility.Visible;
 				DeleteMom.Visibility = Visibility.Collapsed;
 			}
@@ -81,7 +81,7 @@ namespace WpfApp1
             }
             else
             {
-                SpouseText.Text = "Not set";
+                SpouseText.Text = "Chưa đặt";
             }
 
             // Load children
@@ -246,8 +246,8 @@ namespace WpfApp1
 			{
 				Person child = FamilyTree.GetPerson(childId);
 				var result = MessageBox.Show(
-					$"Remove {child.Name} as a child?",
-					"Confirm Remove",
+					$"Xóa {child.Name} khỏi danh sách con?",
+					"Xác nhận xóa",
 					MessageBoxButton.YesNo,
 					MessageBoxImage.Question
 				);
@@ -256,7 +256,7 @@ namespace WpfApp1
 				{
 					FamilyTree.deleteChildren(personId, childId);
 					LoadPersonData();
-					MessageBox.Show($"{child.Name} removed as child!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+					MessageBox.Show($"Đã xóa {child.Name} khỏi danh sách con !", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
 			}
 		}
@@ -281,7 +281,7 @@ namespace WpfApp1
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif",
-                Title = "Select Profile Picture"
+                Title = "CHọn ảnh"
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -292,11 +292,11 @@ namespace WpfApp1
                     FamilyTree.updatePfp(personId, imageData);
                     Person person = FamilyTree.GetPerson(personId);
                     LoadProfilePicture(person);
-                    MessageBox.Show("Profile picture updated!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Chưa update ảnh!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Tải ảnh bị lỗi: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -306,7 +306,7 @@ namespace WpfApp1
             Person person = FamilyTree.GetPerson(personId);
             FamilyTree.updatePfp(personId, null);
             LoadProfilePicture(person);
-            MessageBox.Show("Profile picture removed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Đã xóa ảnh!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void SetDad_Click(object sender, RoutedEventArgs e)
@@ -317,7 +317,7 @@ namespace WpfApp1
                 int dadId = selector.SelectedPersonId.Value;
                 FamilyTree.addFather(personId, dadId);
                 LoadPersonData();
-                MessageBox.Show($"{FamilyTree.GetPerson(dadId).Name} set as father!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Đã thêm {FamilyTree.GetPerson(dadId).Name} làm bố!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 
             }
         }
@@ -330,15 +330,15 @@ namespace WpfApp1
                 int momId = selector.SelectedPersonId.Value;
                 FamilyTree.addMother(personId, momId);
                 LoadPersonData();
-                MessageBox.Show($"{FamilyTree.GetPerson(momId).Name} set as mother!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Đã thêm {FamilyTree.GetPerson(momId).Name} làm mẹ!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
             }
         }
 		private void DeleteParents_Click(object sender, RoutedEventArgs e)
 		{
 			var result = MessageBox.Show(
-				"Are you sure you want to delete parents?",
-				"Confirm Delete",
+				"Bạn có chắc muốn xóa bố/mẹ?",
+				"Xác nhận xóa",
 				MessageBoxButton.YesNo,
 				MessageBoxImage.Warning
 			);
@@ -346,7 +346,7 @@ namespace WpfApp1
 			{
 				FamilyTree.deleteParents(personId);
 				LoadPersonData();
-				MessageBox.Show("Parents deleted!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+				MessageBox.Show("Đã xóa!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 			}
 
 		}
@@ -355,7 +355,7 @@ namespace WpfApp1
             var person = FamilyTree.GetPerson(personId);
             if (person.Spouse != null)
             {
-				MessageBox.Show("Already have spouse, can't add!", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
+				MessageBox.Show("Đã có vợ/chồng,không thể thêm nữa!", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
 			}
             var selector = new WindowSelector(!person.Gender, personId, 1); // opposite gender
@@ -364,7 +364,7 @@ namespace WpfApp1
                 int spouseId = selector.SelectedPersonId.Value;
                 FamilyTree.addSpouse(personId, spouseId);
                 LoadPersonData();
-                MessageBox.Show($"{FamilyTree.GetPerson(spouseId).Name} set as spouse!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Đã thêm {FamilyTree.GetPerson(spouseId).Name} làm vợ/chồng!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
             }
         }
@@ -379,7 +379,7 @@ namespace WpfApp1
                 int childId = selector.SelectedPersonId.Value;
                 FamilyTree.addChildren(personId, childId);
                 LoadPersonData();
-                MessageBox.Show($"{FamilyTree.GetPerson(childId).Name} set as child!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Đã thêm  {FamilyTree.GetPerson(childId).Name} làm con!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
             }
         }
@@ -392,8 +392,8 @@ namespace WpfApp1
         private void DeletePerson_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
-                "Are you sure you want to delete this person? This action cannot be undone.",
-                "Confirm Delete",
+                "Bạn có chắc chắn muốn xóa thành viên này? Thao tác này không thể hoàn lại!!",
+                "Xác nhận xóa",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning
             );
@@ -401,7 +401,7 @@ namespace WpfApp1
             if (result == MessageBoxResult.Yes)
             {
                 FamilyTree.RemovePerson(personId);
-                MessageBox.Show("Person deleted!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Dã xóa thành viên!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 NavigationService.Navigate(new PageSearchResults(""));
             }
