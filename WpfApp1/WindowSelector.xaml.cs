@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,25 +33,68 @@ namespace WpfApp1
         {
             var allPeople = FamilyTree.SearchByName("");
             var related = FamilyTree.getRelated(personid);
-			allPeople.RemoveAll(x => related.Contains(x.id));
-            if (mode==2) allPeople.RemoveAll(x => x.person.Dad.HasValue); // get fatherless
-            else if (mode==3) allPeople.RemoveAll(x => x.person.Mom.HasValue); // get motherless
-			if (genderFilter.HasValue)
+            allPeople.RemoveAll(x => related.Contains(x.id));
+
+            if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue);
+            else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue);
+
+            if (genderFilter.HasValue)
             {
                 allPeople = allPeople.Where(p => p.person.Gender == genderFilter.Value).ToList();
             }
+
             foreach (var (id, person) in allPeople.OrderBy(p => p.person.Name))
             {
+                BitmapImage bitmapImage = null;
+                if (person.Pfp != null && person.Pfp.Length > 0)
+                {
+                    try
+                    {
+                        bitmapImage = new BitmapImage();
+                        using (var ms = new MemoryStream(person.Pfp))
+                        {
+                            bitmapImage.BeginInit();
+                            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmapImage.StreamSource = ms;
+                            bitmapImage.EndInit();
+                        }
+                        bitmapImage.Freeze();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Load lỗi: {ex.Message}");
+                        bitmapImage = null;
+                    }
+                }
+
                 var item = new ListBoxItem
                 {
-                    Content = $"{person.Name} ({person.BirthDate:dd-MM-yyyy}) - {(person.Gender ? "Male" : "Female")}",
+                    Content = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Children =
+                {
+                    new Image
+                    {
+                        Width = 40,
+                        Height = 40,
+                        Margin = new Thickness(0, 0, 10, 0),
+                        Source = bitmapImage
+                    },
+                    new TextBlock
+                    {
+                        Text = $"{person.Name} ({person.BirthDate:dd/MM/yyyy}) - {(person.Gender ? "Nam" : "Nữ")}",
+                        VerticalAlignment = VerticalAlignment.Center
+                    }
+                }
+                    },
                     Tag = id
                 };
                 PeopleListBox.Items.Add(item);
             }
         }
 
-		private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string query = SearchBox.Text.ToLower();
 
