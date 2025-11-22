@@ -151,10 +151,20 @@ namespace WpfApp1
 
             if (person.Spouse.HasValue)
             {
-                double x = offset + StartX + (currMaxWidth - (2 * CardWidth + HorizontalSpacing)) / 2;
-                positions[personId] = new Point(x, currentY);
-                x = x + CardWidth + HorizontalSpacing;
-                positions[person.Spouse.Value] = new Point(x, currentY);
+                if (person.Gender)
+                {
+                    double x = offset + StartX + (currMaxWidth - (2 * CardWidth + HorizontalSpacing)) / 2;
+                    positions[personId] = new Point(x, currentY);
+                    x = x + CardWidth + HorizontalSpacing;
+                    positions[person.Spouse.Value] = new Point(x, currentY);
+                }
+                else
+                {
+                    double x = offset + StartX + (currMaxWidth - (2 * CardWidth + HorizontalSpacing)) / 2;
+                    positions[person.Spouse.Value] = new Point(x, currentY);
+                    x = x + CardWidth + HorizontalSpacing;
+                    positions[personId] = new Point(x, currentY);
+                }
                 processed.Add(person.Spouse.Value);
             }
             else
@@ -322,7 +332,7 @@ namespace WpfApp1
 						};
                         TreeCanvas.Children.Add(vertSpouseLine);
 
-						double leftChildX = positions[children[0]].X + CardWidth / 2;
+						double leftChildX = Math.Min(positions[children[0]].X + CardWidth / 2, childLineX);
 						double rightChildX = Math.Max(positions[children[children.Count - 1]].X + CardWidth / 2, childLineX);
 
 						Line horizontalLine = new Line

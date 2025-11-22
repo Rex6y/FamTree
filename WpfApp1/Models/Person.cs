@@ -274,7 +274,8 @@ static class FamilyTree
     }
     public static void updatePfp(int id, byte[]? image)
     {
-        Tree[id].Pfp = image;
+        if (image != null) Tree[id].Pfp = image;
+        else Tree[id].Pfp = DefaultImages.GetDefaultImage(Tree[id].Gender); 
         Save();
     }
 

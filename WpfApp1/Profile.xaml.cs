@@ -292,7 +292,7 @@ namespace WpfApp1
                     FamilyTree.updatePfp(personId, imageData);
                     Person person = FamilyTree.GetPerson(personId);
                     LoadProfilePicture(person);
-                    MessageBox.Show("Chưa update ảnh!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Đã update ảnh!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
