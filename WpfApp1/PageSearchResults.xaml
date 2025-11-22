@@ -105,8 +105,8 @@
                     Width="800"
                     Height="500"
                     Background="White">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Width="800" VerticalAlignment="Center">
-                        <StackPanel x:Name="SearchResultsPanel" Margin="10" VerticalAlignment="Center">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Width="800" VerticalAlignment="Top">
+                        <StackPanel x:Name="SearchResultsPanel" Margin="10" VerticalAlignment="Top">
                             <TextBlock x:Name="NoResultsText"
                                    Text="Nhập tên để tìm kiếm..."
                                    FontWeight="Bold"

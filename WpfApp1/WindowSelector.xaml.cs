@@ -34,11 +34,12 @@ namespace WpfApp1
             var allPeople = FamilyTree.SearchByName("");
             var related = FamilyTree.getRelated(personid);
             allPeople.RemoveAll(x => related.Contains(x.id));
+            var p = FamilyTree.GetPerson(personid);
+            if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue || x.person.BirthDate <= p.BirthDate);
+            else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue || x.person.BirthDate <= p.BirthDate);
+            else if (mode == 4) allPeople.RemoveAll(x => x.person.BirthDate >= p.BirthDate);
 
-            if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue);
-            else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue);
-
-            if (genderFilter.HasValue)
+			if (genderFilter.HasValue)
             {
                 allPeople = allPeople.Where(p => p.person.Gender == genderFilter.Value).ToList();
             }

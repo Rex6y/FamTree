@@ -311,7 +311,7 @@ namespace WpfApp1
 
         private void SetDad_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(true, personId, 1); // true = male only
+            var selector = new WindowSelector(true, personId, 4); // true = male only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int dadId = selector.SelectedPersonId.Value;
@@ -324,7 +324,7 @@ namespace WpfApp1
 
 		private void SetMom_Click(object sender, RoutedEventArgs e)
         {
-            var selector = new WindowSelector(false, personId, 1); // false = female only
+            var selector = new WindowSelector(false, personId, 4); // false = female only
             if (selector.ShowDialog() == true && selector.SelectedPersonId.HasValue)
             {
                 int momId = selector.SelectedPersonId.Value;

@@ -16,17 +16,16 @@
                Margin="0,100,0,0">
             <TextBlock.Effect>
                 <DropShadowEffect BlurRadius="8" 
-                            ShadowDepth="2" 
+                            ShadowDepth="4" 
                             Opacity="1" 
-                            Color="#1E40AF"/>
+                            Color="#000000"/>
             </TextBlock.Effect>
             <TextBlock.Foreground>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#FF00DDEB" Offset="0.0"/>
-                    <GradientStop Color="#FF3B82F6" Offset="0.4"/>
-                    <GradientStop Color="#FF8B5CF6" Offset="0.7"/>
-                    <GradientStop Color="#FFEC4899" Offset="1.0"/>
-                </LinearGradientBrush>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+					<GradientStop Color="#eff1da" Offset="0.0"/>
+					<GradientStop Color="#dce7d1" Offset="0.15"/>
+					<GradientStop Color="#b3ceb6" Offset="1.0"/>
+				</LinearGradientBrush>
             </TextBlock.Foreground>
         </TextBlock>
 
