@@ -244,7 +244,7 @@
         <Border x:Name="SearchPanelBorder" Grid.Row="1" HorizontalAlignment="Right" Width="400" 
                 CornerRadius="12" 
                 BorderThickness="2" 
-                BorderBrush="Green" 
+                BorderBrush="Black" 
                 Background="White"
                 Visibility="Collapsed">
             <Grid x:Name="SearchPanel" Focusable="True" KeyDown="SearchPanel_KeyDown">

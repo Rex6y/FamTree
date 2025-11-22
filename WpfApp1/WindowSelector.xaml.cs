@@ -35,16 +35,16 @@ namespace WpfApp1
             var related = FamilyTree.getRelated(personid);
             allPeople.RemoveAll(x => related.Contains(x.id));
             var p = FamilyTree.GetPerson(personid);
-            if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue || x.person.BirthDate <= p.BirthDate);
+            if (mode == 1) allPeople.RemoveAll(x => x.person.Spouse.HasValue);
+            else if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue || x.person.BirthDate <= p.BirthDate);
             else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue || x.person.BirthDate <= p.BirthDate);
             else if (mode == 4) allPeople.RemoveAll(x => x.person.BirthDate >= p.BirthDate);
 
 			if (genderFilter.HasValue)
             {
-                allPeople = allPeople.Where(p => p.person.Gender == genderFilter.Value).ToList();
+                allPeople = allPeople.Where(x => x.person.Gender == genderFilter.Value).ToList();
             }
-
-            foreach (var (id, person) in allPeople.OrderBy(p => p.person.Name))
+            foreach (var (id, person) in allPeople.OrderBy(x => x.person.Name))
             {
                 BitmapImage bitmapImage = null;
                 if (person.Pfp != null && person.Pfp.Length > 0)
