@@ -35,9 +35,15 @@ namespace WpfApp1
             var related = FamilyTree.getRelated(personid);
             allPeople.RemoveAll(x => related.Contains(x.id));
             var p = FamilyTree.GetPerson(personid);
+            var mBirthDate = p.BirthDate;
+
+			if (p.Spouse.HasValue) { 
+                var spouse = FamilyTree.GetPerson(p.Spouse.Value);
+                mBirthDate = p.BirthDate > spouse.BirthDate ? p.BirthDate : spouse.BirthDate;
+            }
             if (mode == 1) allPeople.RemoveAll(x => x.person.Spouse.HasValue);
-            else if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue || x.person.BirthDate <= p.BirthDate);
-            else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue || x.person.BirthDate <= p.BirthDate);
+            else if (mode == 2) allPeople.RemoveAll(x => x.person.Dad.HasValue || x.person.BirthDate <= mBirthDate);
+            else if (mode == 3) allPeople.RemoveAll(x => x.person.Mom.HasValue || x.person.BirthDate <= mBirthDate);
             else if (mode == 4) allPeople.RemoveAll(x => x.person.BirthDate >= p.BirthDate);
 
 			if (genderFilter.HasValue)
