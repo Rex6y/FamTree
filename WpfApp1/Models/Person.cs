@@ -70,7 +70,7 @@ public class SaveData
 
 public class Node {
     public int Id { get; set; }
-    public int distance;
+    public int Distance { get; set; }
     public Node next;
 }
 
@@ -84,11 +84,13 @@ public class Queue
     }
     public void Enqueue(int id, int distance)
     {
-        Node newNode = new Node();
-        newNode.Id = id;
-        newNode.distance = distance;
-        newNode.next = null;
-        if (rear == null)
+        Node newNode = new Node
+        {
+            Id = id,
+            Distance = distance,
+            next = null
+        };
+        if (front == null)
         {
             front = newNode;
             rear = newNode;
@@ -99,11 +101,11 @@ public class Queue
             rear = newNode;
         }
     }
-    public (int,int)? Dequeue()
+    public (int,int) Dequeue()
     {
         if (front == null)
-            return null;
-        int x = front.Id, y = front.distance;
+            return (-1,-1);
+        int x = front.Id, y = front.Distance;
         Node temp = front;
         front = front.next;
         if (front == null)
