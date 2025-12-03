@@ -68,7 +68,55 @@ public class SaveData
     public int UniqueId { get; set; }
 }
 
-static class FamilyTree
+public class Node {
+    public int Id { get; set; }
+    public int distance;
+    public Node next;
+}
+
+public class Queue
+{
+    private Node front;
+    private Node rear;
+    public Queue()
+    {
+        front = rear = null;;
+    }
+    public void Enqueue(int id, int distance)
+    {
+        Node newNode = new Node();
+        newNode.Id = id;
+        newNode.distance = distance;
+        newNode.next = null;
+        if (rear == null)
+        {
+            front = newNode;
+            rear = newNode;
+        }
+        else
+        {
+            rear.next = newNode;
+            rear = newNode;
+        }
+    }
+    public (int,int)? Dequeue()
+    {
+        if (front == null)
+            return null;
+        int x = front.Id, y = front.distance;
+        Node temp = front;
+        front = front.next;
+        if (front == null)
+            rear = null;
+        return (x,y);
+    }
+    public bool IsEmpty()
+    {
+        return front == null;
+    }
+}
+
+    static class FamilyTree
 {
     private static Dictionary<int, Person> Tree = new();
     private static int UniqueId = 0;

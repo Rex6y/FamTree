@@ -540,14 +540,14 @@ namespace WpfApp1
 				return 0;
 
 			// BFS from person1 to find person2
-			var queue = new Queue<(int id, int distance)>();
+			var queue = new Queue();
 			var ascendants = new HashSet<int>();
 			var visited = new HashSet<int>();
-			queue.Enqueue((id1, 0));
+			queue.Enqueue(id1, 0);
 			visited.Add(id1);
             ascendants.Add(id1);
 
-			while (queue.Count > 0)
+			while (!queue.IsEmpty())
 			{
 				var (currentId, distance) = queue.Dequeue();
                 if (!gens.Any(gen => gen.Contains(currentId))) continue;
@@ -559,13 +559,13 @@ namespace WpfApp1
 				{
 					if (current.Dad.HasValue && !visited.Contains(current.Dad.Value))
                     {
-                        queue.Enqueue((current.Dad.Value, distance + 1));
+                        queue.Enqueue(current.Dad.Value, distance + 1);
                         visited.Add(current.Dad.Value);
                         ascendants.Add(current.Dad.Value);
                     }
                     if (current.Mom.HasValue && !visited.Contains(current.Mom.Value))
                     {
-						queue.Enqueue((current.Mom.Value, distance + 1));
+						queue.Enqueue(current.Mom.Value, distance + 1);
 						visited.Add(current.Mom.Value);
 						ascendants.Add(current.Mom.Value);
 					}
@@ -577,7 +577,7 @@ namespace WpfApp1
                     foreach (var c in dad.Children)
                     {
 						if (visited.Contains(c)) continue;
-						queue.Enqueue((c, distance + 1));
+						queue.Enqueue(c, distance + 1);
 						visited.Add(c);
 					}
                 } else if (current.Mom.HasValue)
@@ -586,14 +586,14 @@ namespace WpfApp1
 					foreach (var c in mom.Children)
 					{
 						if (visited.Contains(c)) continue;
-						queue.Enqueue((c, distance + 1));
+						queue.Enqueue(c, distance + 1);
 						visited.Add(c);
 					}
 				}
                 foreach (int c in current.Children)
                 {
                     if (visited.Contains(c)) continue;
-                    queue.Enqueue((c, distance + 1));
+                    queue.Enqueue(c, distance + 1);
                     visited.Add(c);
                 }
                 
