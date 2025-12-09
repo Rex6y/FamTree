@@ -22,16 +22,22 @@ namespace WpfApp1
     public partial class WindowSelector : Window
     {
         public int? SelectedPersonId { get; private set; }
+        bool? genderFilter;
+        int personid;
+        int mode;
 
-        public WindowSelector(bool? genderFilter, int id, int mode)
+        public WindowSelector(bool? gender, int pid, int m)
         {
             InitializeComponent();
-            LoadPeople(genderFilter, id, mode);
+            genderFilter = gender;
+            personid = pid;
+            mode = m;
+            LoadPeople("");
         }
 
-        private void LoadPeople(bool? genderFilter, int personid, int mode)
+        private void LoadPeople(string name)
         {
-            var allPeople = FamilyTree.SearchByName("");
+            var allPeople = FamilyTree.SearchByName(name);
             var related = FamilyTree.getRelated(personid);
             allPeople.RemoveAll(x => related.Contains(x.id));
             var p = FamilyTree.GetPerson(personid);
@@ -103,13 +109,9 @@ namespace WpfApp1
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string query = SearchBox.Text.ToLower();
-
-            foreach (ListBoxItem item in PeopleListBox.Items)
-            {
-                string content = item.Content.ToString().ToLower();
-                item.Visibility = content.Contains(query) ? Visibility.Visible : Visibility.Collapsed;
-            }
+            string query = SearchBox.Text.Trim();
+            PeopleListBox.Items.Clear();
+            LoadPeople(query);
         }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)
@@ -130,11 +132,6 @@ namespace WpfApp1
         {
             DialogResult = false;
             Close();
-        }
-
-        private void PeopleListBox_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-
         }
     }
 }

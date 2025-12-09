@@ -386,5 +386,4 @@ public class Queue
 		if (p.Spouse.HasValue) getRelatedRecursive(p.Spouse.Value, related);
 		foreach (int c in p.Children) getRelatedRecursive(c, related);
 	}
-
 }
