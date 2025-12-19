@@ -58,7 +58,7 @@
 
 **Cách 1: Cài bằng winget (Windows 10 1709 trở lên)**
 1. Mở Command Prompt (CMD) với quyền Administrator
-2. Gõ lệnh: `winget install Microsoft.DotNet.DesktopRuntime.8` & 'winget install Microsoft.DotNet.SDK.8'
+2. Gõ lệnh: `winget install Microsoft.DotNet.DesktopRuntime.8` & `winget install Microsoft.DotNet.SDK.8`
 3. Chờ quá trình cài đặt hoàn tất
 4. Khởi động lại máy tính
 
